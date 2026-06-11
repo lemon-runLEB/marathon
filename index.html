@@ -9,8 +9,8 @@
             --bg-main: #0B0B0C;
             --bg-card: #16161A;
             --bg-card-inner: #1F1F24;
-            --primary: #FF5200; /* 馬拉松熱血橘 */
-            --accent: #00E676;  /* 螢光綠 */
+            --primary: #FF5200; 
+            --accent: #00E676;  
             --text-main: #F5F5F7;
             --text-sub: #8E8E93;
             --border: #2C2C35;
@@ -32,17 +32,14 @@
         .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
         .card h2 { margin: 0 0 15px 0; font-size: 1.25rem; font-weight: 700; }
 
-        /* 月份大頁籤 */
         .month-selector { display: flex; background-color: var(--bg-main); padding: 6px; border-radius: 30px; gap: 5px; margin-bottom: 20px; border: 1px solid var(--border); overflow-x: auto; }
         .month-btn { flex: 1; min-width: 60px; background: none; border: none; color: var(--text-sub); padding: 10px 0; border-radius: 25px; cursor: pointer; font-weight: 700; font-size: 0.9rem; text-align: center; white-space: nowrap; }
         .month-btn.active { background-color: var(--primary); color: white; }
 
-        /* 內部頁籤 */
         .sub-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
         .sub-btn { background: none; border: 1px solid var(--border); color: var(--text-sub); padding: 6px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
         .sub-btn.active { background-color: var(--bg-card-inner); color: var(--primary); border-color: var(--primary); }
 
-        /* 週數切換小頁籤 */
         .week-selector { display: flex; gap: 8px; margin: 15px 0; }
         .week-btn { background-color: var(--bg-card-inner); border: 1px solid var(--border); color: var(--text-sub); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
         .week-btn.active { border-color: var(--accent); color: var(--accent); }
@@ -51,7 +48,7 @@
         .section-title { font-weight: bold; color: var(--primary); font-size: 1rem; margin-bottom: 5px; }
         .workout-box { background-color: var(--bg-card-inner); border-radius: 12px; padding: 18px; border-left: 4px solid var(--primary); margin-top: 10px; }
 
-        /* 高質感鞋款分類標籤顏色 */
+        /* Lemon 跑鞋專屬高質感標籤色 */
         .shoe-tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin: 1px; }
         .shoe-tag.interval { background-color: rgba(231, 76, 60, 0.15); color: #E74C3C; border: 1px solid rgba(231, 76, 60, 0.3); }
         .shoe-tag.lsd { background-color: rgba(46, 204, 113, 0.15); color: #2ECC71; border: 1px solid rgba(46, 204, 113, 0.3); }
@@ -84,7 +81,7 @@
 <div class="container">
     <header>
         <h1>Lemon 2026 <span>馬拉松雲端數據指揮艙</span></h1>
-        <p>🔄 試算表實時連線 · 每週完整一至日課表與真實戰靴最優綁定版</p>
+        <p>🔄 試算表實時連線 · 跑鞋陣容 100% 精確修正定錨版</p>
     </header>
 
     <div class="status-bar">
@@ -126,13 +123,13 @@
         <aside>
             <div class="card">
                 <h2>🗺️ 2026 固定賽事與戰術定錨</h2>
-                <div class="race-row"><div><strong>09/19 - 09/20 西夸父</strong><br><small style="color: var(--text-sub);">純娛樂 / 長距離有氧維持</small></div><span class="badge badge-fun">C 級娛樂</span></div>
+                <div class="race-row"><div><strong>09/19 - 09/20 西夸父</strong><br><small style="color: var(--text-sub);">純娛樂 / 長距離有氧耐力維持</small></div><span class="badge badge-fun">C 級娛樂</span></div>
                 <div class="race-row"><div><strong>10/31 華航馬拉松</strong><br><small style="color: var(--accent);">半馬目標 Sub 90 (配速 4'15")</small></div><span class="badge">A 級主戰</span></div>
                 <div class="race-row"><div><strong>11/01 NB 10KM</strong><br><small style="color: var(--text-sub);">排乳酸跑 / 嚴禁硬衝</small></div><span class="badge badge-fun">C 級恢復</span></div>
                 <div class="race-row"><div><strong>11/08 田中馬拉松</strong><br><small style="color: var(--accent);">初全馬目標 Sub 330 (配速 4'55")</small></div><span class="badge">A 級主戰</span></div>
                 <div class="race-row"><div><strong>11/15 鹿港 10KM</strong><br><small style="color: var(--text-sub);">初全馬後動態排毒恢復</small></div><span class="badge badge-fun">C 級恢復</span></div>
                 <div class="race-row"><div><strong>11/29 Garmin 半馬</strong><br><small style="color: var(--accent);">年度半馬大收割 Sub 90</small></div><span class="badge">A 級主戰</span></div>
-                <div class="race-row"><div><strong>12/13 日本富士山全馬</strong><br><small style="color: var(--text-sub);">跑旅全馬放鬆 (Sub 350)</small></div><span class="badge badge-b">B 級戰略</span></div>
+                <div class="race-row"><div><strong>12/13 日本富士山全馬</strong><br><small style="color: var(--text-sub);">跑旅全馬放鬆 (目標 Sub 350)</small></div><span class="badge badge-b">B 級戰略</span></div>
             </div>
         </aside>
     </div>
@@ -153,104 +150,102 @@
     let currentView = 'summary';
     let currentWeekTab = 'w1';
 
-    // 2. 嚴格遵循 Lemon 現有七大主力鞋款特化配對之週期化資料庫
+    // 跑鞋矩陣與 W1-W4 課表依據「跑者訓練計畫與體檢分析」檔案 100% 精確修正定錨
     const planDatabase = {
         m6: {
             summary: `<h3>【6月 · 夏季基礎建構期】</h3>
                       <div class="section-block"><div class="section-title">🎯 月跑量目標</div><p>200 公里</p></div>
-                      <div class="section-block"><div class="section-title">🏃‍♂️ 訓練主軸</div><p>夏季有氧引擎大打底。週間執行神經流高速刺激，星期三雷打不動執行動態修復，週末鞏固長距離基礎有氧城牆。</p></div>
-                      <div class="section-block"><div class="section-title">🛡️ 防傷特化（高足弓/右膝）</div><p>死守高足弓防線！凡是路跑硬地慢跑與 LSD 必須塞入高足弓鞋墊。週五重訓日著重下肢剛性，徹底執行右側臀中肌激活（側臥抬腿3組），解除右膝外側拉扯張力。</p></div>
-                      <div class="section-block"><div class="section-title">👟 跑鞋智慧調度</div><p>操場速度間歇唯一指定 <span class="shoe-tag interval">Adios 9</span>；雨天或跑步機指定 <span class="shoe-tag interval">Kiprun Tempo</span>；週間輕鬆有氧出動 Lightstrike Pro 發泡的拿鐵利器 <span class="shoe-tag aero">Adizero Evo SL</span>；星期三恢復跑交給 <span class="shoe-tag recovery">ASICS Novablast 5</span>；週日長距離 LSD 則由 <span class="shoe-tag lsd">Boston 13</span> 與 <span class="shoe-tag lsd">NB SC Trainer</span> 雙雄捍衛。</p></div>`,
+                      <div class="section-block"><div class="section-title">🏃‍♂️ 訓練主軸</div><p>夏季有氧引擎大打底。週間速度刺激與神經激發，星期三強制Novablast 5動態調理，週末穩固長距離基礎有氧城牆。</p></div>
+                      <div class="section-block"><div class="section-title">🛡️ 防傷特化（高足弓/右膝）</div><p>死守高足弓防線！凡路跑硬地慢跑與 LSD 必須塞入高足弓鞋墊。週五重訓日著重下肢剛性，徹底執行右側臀中肌激活（側臥抬腿3組），解除右膝外側拉扯張力。</p></div>
+                      <div class="section-block"><div class="section-title">👟 跑鞋智慧調度</div><p>操場速度間歇：<span class="shoe-tag interval">adidas Adios 9</span> | 雨天/跑步機：<span class="shoe-tag interval">Kiprun Tempo</span> | 輕鬆有氧跑：<span class="shoe-tag aero">adidas Evo SL</span> | 恢復跑：<span class="shoe-tag recovery">ASICS Novablast 5</span> | 長距離 LSD：<span class="shoe-tag lsd">adidas Boston 13</span> / <span class="shoe-tag lsd">NB SC Trainer</span></p></div>`,
             weeks: {
-                w1: `<tr><td>週一</td><td>全天休息</td><td>放鬆大腦中樞神經系統</td><td>-</td></tr>
-                     <tr><td>週二</td><td>操場速度間歇跑：400m * 8趟<br><small style="color:var(--accent)">錶參數：目標配速 3'50"~4'00"/km，組間休息 90秒</small></td><td>激發速度快肌神經流，發揮 190+ spm 高步頻優勢</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
-                     <tr><td>週三</td><td>常規輕鬆修復跑 6K<br><small style="color:var(--text-sub)">強度：配速 5'40"~6'00"/km，極低心率</small></td><td><b>【星期三防線補齊】</b>動態排除乳酸，加速肌肉微損傷調理</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
-                     <tr><td>週四</td><td>週間常規有氧跑 10K<br><small style="color:var(--text-sub)">強度：配速 5'20"~5'35"/km</small></td><td>有氧引擎築牆，累積耐力容積，維持百幅對稱</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>
-                     <tr><td>週五</td><td>健身房重訓日</td><td>擺臂剛性充血 ＋ 下肢臀中肌死守菜單（側臥抬腿3組）</td><td>平底訓練鞋 / 赤足</td></tr>
+                w1: `<tr><td>週一</td><td>全天休息</td><td>放鬆中樞神經系統</td><td>-</td></tr>
+                     <tr><td>週二</td><td>操場速度間歇跑：400m * 8趟<br><small style="color:var(--accent)">錶設定：配速 3'50"~4'00"/km，休 90秒</small></td><td>激發速度快肌神經流，發揮 190+ spm 高步頻優勢</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
+                     <tr><td>週三</td><td>常規輕鬆修復跑 6K<br><small style="color:var(--text-sub)">配速 5'40"~6'00"/km</small></td><td>動態排除乳酸，加速快肌纖維微損傷調理</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
+                     <tr><td>週四</td><td>週間常規有氧跑 10K<br><small style="color:var(--text-sub)">配速 5'20"~5'35"/km</small></td><td>有氧引擎築牆，穩健累積基礎跑量容積</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>
+                     <tr><td>週五</td><td>健身房重訓日</td><td>上半身擺臂剛性充血 ＋ 右側臀中肌死守菜單（側臥抬腿3組）</td><td>平底訓練鞋 / 赤足</td></tr>
                      <tr><td>週六</td><td>核心滾筒放鬆</td><td>使用泡沫軸深層放鬆右側 ITB（髂脛束）與大腿外側</td><td>-</td></tr>
-                     <tr><td>週日</td><td>低心率長距離 LSD 21K<br><small style="color:var(--accent)">錶參數：平均心率嚴格控制在 140 bpm 以下</small></td><td>忘記配速 ($5'45'' \sim 6'10''$)，測試高足弓水泥硬地抗疲勞度</td><td><span class="shoe-tag lsd">adidas Boston 13 (+鞋墊)</span></td></tr>`,
+                     <tr><td>週日</td><td>低心率長距離 LSD 21K<br><small style="color:var(--accent)">錶設定：平均心率嚴格 < 140 bpm</small></td><td>忘記配速 ($5'45'' \sim 6'10''$)，測試硬地抗疲勞性</td><td><span class="shoe-tag lsd">adidas Boston 13 (+鞋墊)</span></td></tr>`,
                 w2: `<tr><td>週一</td><td>全天休息</td><td>中樞神經深度修復</td><td>-</td></tr>
-                     <tr><td>週二</td><td>操場速度間歇跑：400m * 10趟<br><small style="color:var(--accent)">錶參數：目標配速 3'50"~4'00"/km，休 90秒</small></td><td>負荷上推 2 趟，監控後程高心肺下核心抗晃剛性</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
-                     <tr><td>週三</td><td>常規輕鬆修復跑 7K<br><small style="color:var(--text-sub)">強度：慢速調理體感</small></td><td><b>【星期三防線補齊】</b>動態循環代謝，深度舒緩大腿外側張力</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
-                     <tr><td>週四</td><td>週間常規有氧跑 10K<br><small style="color:var(--text-sub)">強度：配速 5'20"~5'35"/km</small></td><td>穩扎穩打累積跑量，落地即彈，保護足底筋膜</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>
-                     <tr><td>週五</td><td>健身房重訓日</td><td>死守右臀中肌剛性，重訓與擺臂充血</td><td>平底訓練鞋</td></tr>
-                     <tr><td>週六</td><td>深層肌肉調理</td><td>加強右側髖關節活動度與小腿放鬆</td><td>-</td></tr>
-                     <tr><td>週日</td><td>低心率長距離 LSD 22K<br><small style="color:var(--accent)">錶參數：平均心率死守 140 bpm 以下</small></td><td>拉長硬地轟炸里程，實測中底與高足弓鞋墊抗疲勞性</td><td><span class="shoe-tag lsd">NB SC Trainer (+鞋墊)</span></td></tr>`,
-                w3: `<tr><td>週一</td><td>全天休息</td><td>快肌纖維合成與修復</td><td>-</td></tr>
-                     <tr><td>週二</td><td>操場速度間歇跑：400m * 10趟<br><small style="color:var(--accent)">錶參數：配速收緊至 3'50"~3'55"/km，休 90秒</small></td><td>強度微幅上逼，將快肌神經興奮度逼出新高</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
-                     <tr><td>週三</td><td>常規輕鬆修復跑 6K<br><small style="color:var(--text-sub)">強度：慢速極輕鬆</small></td><td><b>【星期三防線補齊】</b>降速、控心率，動態調節右膝外側體感</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
-                     <tr><td>週四</td><td>週間常規有氧跑 12K<br><small style="color:var(--text-sub)">強度：配速 5'15"~5'30"/km</small></td><td>有氧里程上推，專注於中後段體感無痛反饋</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>
-                     <tr><td>週五</td><td>健身房重訓日</td><td>側臥抬腿3組 ＋ 上肢剛性擺臂充血訓練</td><td>平底訓練鞋</td></tr>
-                     <tr><td>週六</td><td>物理治療與深層按摩</td><td>全面排毒、拉伸，放鬆足底與髂脛束</td><td>-</td></tr>
-                     <tr><td>週日</td><td>低心率長距離 LSD 24K<br><small style="color:var(--accent)">錶參數：心率死守 140 bpm 以下，本月里程頂峰</small></td><td>長距離大築牆，模擬後半程心肺引擎耐受度</td><td><span class="shoe-tag lsd">adidas Boston 13 (+鞋墊)</span></td></tr>`,
-                w4: `<tr><td>週一</td><td>全天休息</td><td>迎來月度精準減量期</td><td>-</td></tr>
-                     <tr><td>週二</td><td>操場速度間歇跑：400m * 6趟<br><small style="color:var(--accent)">錶參數：維持 3'50" 配速，趟數大砍半</small></td><td><b>精準減量！</b>維持頂級速度刺激，但大幅砍掉里程負荷</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
-                     <tr><td>週三</td><td>常規輕鬆修復跑 5K<br><small style="color:var(--text-sub)">強度：5'50"~6'10" 極慢速</small></td><td><b>【星期三防線補齊】</b>排毒、減壓，最大化消除身體累積 Fatigue</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
-                     <tr><td>週四</td><td>常規有氧跑 8K<br><small style="color:var(--text-sub)">強度：配速 5'30"/km 輕鬆巡航</small></td><td>維持動態代謝循環，肌肉糖原高效率儲備</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>
-                     <tr><td>週五</td><td>健身房關節激活</td><td>不加重量！純動作激活右側臀中肌，維持肌肉張力</td><td>-</td></tr>
+                     <tr><td>週二</td><td>操場速度間歇跑：400m * 10趟<br><small style="color:var(--accent)">錶設定：配速 3'50"~4'00"/km，休 90秒</small></td><td>增加 2 趟負荷，測試後半程高心肺核心抗晃剛性</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
+                     <tr><td>週三</td><td>常規輕鬆修復跑 7K<br><small style="color:var(--text-sub)">慢速體感調理</small></td><td>動態循環代謝，深度舒緩雙腿緊繃感</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
+                     <tr><td>週四</td><td>週間常規有氧跑 10K<br><small style="color:var(--text-sub)">配速 5'20"~5'35"/km</small></td><td>有氧打底，保持高步頻軌跡，落地即彈保護足底</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>
+                     <tr><td>週五</td><td>健身房重訓日</td><td>加強右側臀中肌剛性（側臥抬腿3組）與上半身充血訓練</td><td>平底訓練鞋</td></tr>
+                     <tr><td>週六</td><td>關節物理舒緩</td><td>針對高足弓足底筋膜與小腿進行動態伸展</td><td>-</td></tr>
+                     <tr><td>週日</td><td>低心率長距離 LSD 22K<br><small style="color:var(--accent)">錶設定：平均心率死守 140 bpm 以下</small></td><td>硬地大里程轟炸，實測中底與高足弓鞋墊抗疲勞性</td><td><span class="shoe-tag lsd">NB SC Trainer (+鞋墊)</span></td></tr>`,
+                w3: `<tr><td>週一</td><td>全天休息</td><td>快肌神經與肌肉纖維再生</td><td>-</td></tr>
+                     <tr><td>週二</td><td>操場速度間歇跑：400m * 10趟<br><small style="color:var(--accent)">錶設定：配速微調收緊至 3'50"~3'55"/km，休 90秒</small></td><td>強度略微增加，逼出速度快肌引擎極限興奮度</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
+                     <tr><td>週三</td><td>常規輕鬆修復跑 6K<br><small style="color:var(--text-sub)">降速控心率跑</small></td><td>極低強度有氧恢復，監控右膝外側體感</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
+                     <tr><td>週四</td><td>週間常規有氧跑 12K<br><small style="color:var(--text-sub)">配速 5'15"~5'30"/km</small></td><td>里程上推，專注中後段體感無痛反饋與擺臂對稱</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>
+                     <tr><td>週五</td><td>健身房重訓日</td><td>死守右臀穩定度，配合核心剛性擺臂訓練</td><td>平底訓練鞋</td></tr>
+                     <tr><td>週六</td><td>物理按摩放鬆</td><td>深層調理大腿外側、髂脛束與足底蹠膜</td><td>-</td></tr>
+                     <tr><td>週日</td><td>低心率長距離 LSD 24K<br><small style="color:var(--accent)">錶設定：心率死守 140 bpm，本月里程最高峰</small></td><td>長距離大築牆，建構馬拉松油箱終極容量</td><td><span class="shoe-tag lsd">adidas Boston 13 (+鞋墊)</span></td></tr>`,
+                w4: `<tr><td>週一</td><td>全天休息</td><td>月度週期精準減量調養期</td><td>-</td></tr>
+                     <tr><td>週二</td><td>操場速度間歇跑：400m * 6趟<br><small style="color:var(--accent)">錶設定：維持 3'50" 配速，組數大砍半</small></td><td>精準減量！維持頂級速度刺激，但大幅砍掉里程負荷</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
+                     <tr><td>週三</td><td>常規輕鬆修復跑 5K<br><small style="color:var(--text-sub)">5'50"~6'10" 極慢速</small></td><td>排毒、減壓，最大化消除身體疲勞與微損傷</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
+                     <tr><td>週四</td><td>常規有氧跑 8K<br><small style="color:var(--text-sub)">配速 5'30"/km 輕鬆巡航</small></td><td>維持動態有氧代謝循環，儲備隔週拉量體力</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>
+                     <tr><td>週五</td><td>健身房關節激活</td><td>不加重量！純動作激活右側臀中肌，維持快肌張力</td><td>-</td></tr>
                      <tr><td>週六</td><td>徹底休息日</td><td>全天靜養，進行碳水化合物密集儲備</td><td>-</td></tr>
-                     <tr><td>週日</td><td>有氧定速跑 12K<br><small style="color:var(--accent)">強度：配速 5'00"/km 定速巡航</small></td><td>減量週週末調整，模擬半馬專項配速前期輕鬆體感</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>`
+                     <tr><td>週日</td><td>有氧定速跑 12K<br><small style="color:var(--accent)">配速：5'00"/km 定速巡航</small></td><td>減量週週末調整，模擬半馬專項配速前期放鬆體感</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`
             }
         },
         m7: {
-            summary: `<h3>【7月 · 耐熱築牆期】</h3>
+            summary: `<h3>【7月 · 夏季耐熱築牆期】</h3>
                       <div class="section-block"><div class="section-title">🎯 月跑量目標</div><p>210 - 220 公里</p></div>
-                      <div class="section-block"><div class="section-title">🏃‍♂️ 訓練主軸</div><p>盛夏高溫耐熱適應。核心心率死守在 140 bpm 以下，嚴禁烈日下盲目盲拉速度，專注擺臂穩定度與高步頻巡航慣性。</p></div>`,
+                      <div class="section-block"><div class="section-title">🏃‍♂️ 訓練主軸</div><p>盛夏高溫耐熱環境適應。核心心率鎖死在 140 bpm 以下，注重呼吸調節與高步頻巡航慣性，不在高溫下盲目衝配速。</p></div>`,
             weeks: {
-                w1: `<tr><td>週二</td><td>操場短間歇跑</td><td>速度快肌刺激</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 6K</td><td>動態調理排乳酸</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>長距離 LSD 22K</td><td>低心率築牆 (心率<140)</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w2: `<tr><td>週二</td><td>操場短間歇跑</td><td>速度快肌刺激</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>動態調理排乳酸</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>長距離 LSD 23K</td><td>低心率築牆 (心率<140)</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
-                w3: `<tr><td>週二</td><td>操場短間歇跑</td><td>速度快肌刺激</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>動態調理排乳酸</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>長距離 LSD 24K</td><td>頂峰耐力大打底</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr><tr><td>週五</td><td>健身房重訓</td><td>臀中肌死守防線</td><td>平底訓練鞋</td></tr>`,
-                w4: `<tr><td>週二</td><td>減量短間歇 (組數減半)</td><td>保持快肌張力</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>恢復跑 5K</td><td>深度恢復與減壓</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末有氧慢跑 12K</td><td>輕鬆定速巡航</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>`
+                w1: `<tr><td>週二</td><td>操場短間歇跑</td><td>速度快肌刺激</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 6K</td><td>動態調理排乳酸</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>長距離 LSD 22K</td><td>心率 < 140 有氧築牆</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
+                w2: `<tr><td>週二</td><td>操場短間歇跑</td><td>速度快肌刺激</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>動態調理排乳酸</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>長距離 LSD 23K</td><td>心率 < 140 有氧築牆</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
+                w3: `<tr><td>週二</td><td>操場短間歇跑</td><td>速度快肌刺激</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>動態調理排乳酸</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>長距離 LSD 24K</td><td>耐力頂峰轟炸</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
+                w4: `<tr><td>週二</td><td>減量短間歇 (組數減半)</td><td>保持快肌張力</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>恢復跑 5K</td><td>中樞修復減壓</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末有氧慢跑 12K</td><td>定速輕鬆巡航</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`
             }
         },
         m8: {
-            summary: `<h3>【8月 · 專項強度切換期】</h3>
+            summary: `<h3>【8月 · 專項強度切換與高峰準備】</h3>
                       <div class="section-block"><div class="section-title">🎯 月跑量目標</div><p>230 - 250 公里 (年度最高峰)</p></div>
-                      <div class="section-block"><div class="section-title">🏃‍♂️ 訓練主軸</div><p>將有氧基礎切換至馬拉松專項配速。週間加重乳酸閾值（Tempo 跑）比例，配速定錨在 $4'30'' \sim 4'35''/km$，提高身體耐乳酸剛性。</p></div>`,
+                      <div class="section-block"><div class="section-title">🏃‍♂️ 訓練主軸</div><p>進入半馬專項強度切換。週間加重乳酸閾值（Tempo 節奏跑）比例，配速定錨在 $4'30'' \sim 4'35''/km$，提升身體抗乳酸能力。</p></div>`,
             weeks: {
-                w1: `<tr><td>週二</td><td>操場長間歇 1000m * 5</td><td>提高速度耐受度</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>動態緩解緊繃</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週四</td><td>專項閾值節奏跑 12K</td><td>配速定錨 4'30"~4'35"</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr><tr><td>週日</td><td>長距離 LSD 24K</td><td>後段加載定速模擬</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w2: `<tr><td>週二</td><td>操場長間歇 1000m * 6</td><td>提高速度耐受度</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>動態緩解緊繃</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週四</td><td>專項閾值節奏跑 12K</td><td>配速定錨 4'30"~4'35"</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr><tr><td>週日</td><td>長距離 LSD 25K</td><td>硬地抗疲勞進階轟炸</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
-                w3: `<tr><td>週二</td><td>操場長間歇 1000m * 6</td><td>頂峰速度耐力激發</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 8K</td><td>維持常規星期三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週四</td><td>專項閾值節奏跑 14K</td><td>拉長閾值耐力防線</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr><tr><td>週日</td><td>長距離 LSD 26K</td><td>月度總量頂峰大築牆</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w4: `<tr><td>週二</td><td>精準減量間歇</td><td>組數砍半、速度不減</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>恢復跑 5K</td><td>中樞神經最大化修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末有氧巡航 10K</td><td>動態調整調節</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>`
+                w1: `<tr><td>週二</td><td>操場長間歇 1000m * 5</td><td>開發速度耐受力</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週四</td><td>專項閾值節奏跑 12K</td><td>配速 4'30"~4'35"</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週日</td><td>長距離 LSD 24K</td><td>後段提速模擬跑</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
+                w2: `<tr><td>週二</td><td>操場長間歇 1000m * 6</td><td>開發速度耐受力</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週外</td><td>專項閾值節奏跑 12K</td><td>配速 4'30"~4'35"</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週日</td><td>長距離 LSD 25K</td><td>硬地抗疲勞大累積</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
+                w3: `<tr><td>週二</td><td>操場長間歇 1000m * 6</td><td>快肌神經極限開發</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 8K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週四</td><td>專項閾值節奏跑 14K</td><td>拉長閾值防線</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週日</td><td>長距離 LSD 26K</td><td>頂峰有氧大築牆</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
+                w4: `<tr><td>週二</td><td>精準減量間歇</td><td>組數大砍半</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>恢復跑 5K</td><td>中樞最大化舒緩</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末有氧巡航 10K</td><td>動態調整調節</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`
             }
         },
         m9: {
-            summary: `<h3>【9月 · 速度耐力高峰與實測期】</h3>
-                      <p><strong>核心主軸：</strong> 迎接 09/19 西夸父長距離實測。全面開發半馬 $4'15''$ 目標配速的體感輕鬆度，高頻率磨合神經快肌與擺臂對稱慣性。</p>`,
+            summary: `<h3>【9月 · 速度耐力高峰與賽事測試】</h3>
+                      <p><strong>核心主軸：</strong> 09/19 西夸父長距離實測。全面內化半馬 $4'15''$ 目標配速專項體感，磨合擺臂對稱性與右膝外側耐受度。</p>`,
             weeks: {
-                w1: `<tr><td>週二</td><td>賽前配速間歇跑</td><td>速度張力死守</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 7K</td><td>常規週三調理</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>09/19</td><td><b>西夸父正賽日</b></td><td>長距離實實測 / 禁盲衝硬衝</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>`,
-                w2: `<tr><td>週二</td><td>常規恢復有氧</td><td>賽後小腿排毒跑</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三調理</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>穩健有氧跑 16K</td><td>耐力平穩拉回</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w3: `<tr><td>週二</td><td>操場目標配速跑</td><td>精準模擬 4'15" 配速巡航</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 7K</td><td>常規週三調理</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>高峰長跑 22K</td><td>後半程定速定額提速</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
-                w4: `<tr><td>週二</td><td>減量有氧慢跑</td><td>精準體感控制</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 5K</td><td>常規週三調理</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>賽前倒數調整 12K</td><td>迎接10月華航巔峰</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>`
+                w1: `<tr><td>週二</td><td>賽前配速間歇跑</td><td>速度張力死守</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 7K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>09/19</td><td><b>西夸父正賽日</b></td><td>長距離實測 / 禁盲衝硬衝</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`,
+                w2: `<tr><td>週二</td><td>常規恢復有氧</td><td>賽後小腿動態代謝跑</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>穩健有氧跑 16K</td><td>耐力容積拉回</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
+                w3: `<tr><td>週二</td><td>操場目標配速跑</td><td>精準模擬 4'15" 配速巡航</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 7K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>高峰長跑 22K</td><td>後半程專項定額提速</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
+                w4: `<tr><td>週二</td><td>減量有氧慢跑</td><td>精準控制體感</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 5K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>賽前倒數調整 12K</td><td>準備迎接 10 月華航顛峰</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`
             }
         },
         m10: {
             summary: `<h3>【10月 · 賽前精準減量期】</h3>
-                      <p><strong>核心主軸：</strong> 月總跑量精準大砍 30%-40%（標定 150km），核心防線轉移為最大化消除疲勞、維持快肌神經張力。迎戰 10/31 終極A級主戰場：華航半馬 PB 戰。</p>`,
+                      <p><strong>核心主軸：</strong> 月跑量大砍 30%-40%（標定 150km），核心防線轉移為最大化消除疲勞、維持神經張力。迎戰 10/31 華航半馬（Sub 90 終極PB戰場）。</p>`,
             weeks: {
-                w1: `<tr><td>週二</td><td>目標配速跑 8K</td><td>死守 4'15" 精準體感</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三調理</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>有氧長跑 16K</td><td>精準減量進程啟動</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w2: `<tr><td>週二</td><td>速度間歇 (趟數大砍半)</td><td>純粹維持神經與肌肉張力</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三調理</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>有氧調整跑 14K</td><td>減量階段穩步推進</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
-                w3: `<tr><td>週二</td><td>短距離刺激間歇</td><td>保持大腦速度中樞興奮</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 5K</td><td>常規週三調理</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末倒數慢跑 10K</td><td>充沛體力、修復防傷</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>`,
-                w4: `<tr><td>週二</td><td>賽前最後動態喚醒</td><td>純激活、絕不累積乳酸</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr><tr><td>週三</td><td>極輕鬆調理慢跑 4K</td><td>賽前最後鞋底與落地腳感核對</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>10/31</td><td><b>華航馬拉松正賽 (半馬破90)</b></td><td><b>終極主戰以降臨！全掌碳爪推力火力全開</b></td><td><b><span class="shoe-tag carbon">adidas Adios Pro 4</span></b></td></tr>`
+                w1: `<tr><td>週二</td><td>目標配速跑 8K</td><td>死守 4'15" 精準巡航體感</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>有氧長跑 16K</td><td>精準減量正式啟動</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
+                w2: `<tr><td>週二</td><td>速度間歇 (組數大砍半)</td><td>純粹維持快肌纖維興奮度與張力</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>有氧調整跑 14K</td><td>減量進程平穩前進</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
+                w3: `<tr><td>週二</td><td>短距離刺激間歇</td><td>保持大腦速度中樞興奮狀態</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 5K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末倒數慢跑 10K</td><td>儲備核心體力，強化防傷</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`,
+                w4: `<tr><td>週二</td><td>賽前最後動態喚醒</td><td>純激活，絕不累積乳酸疲勞</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週三</td><td>極輕鬆慢跑 4K</td><td>最後鞋底落地路感核對</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>10/31</td><td><b>華航馬拉松正賽 (半馬破90)</b></td><td><b>終極戰役降臨！全掌爪型推進全面釋放</b></td><td><b><span class="shoe-tag carbon">adidas Adios Pro 4</span></b></td></tr>`
             }
         },
         m11: {
             summary: `<h3>【11月 · 魔鬼四連賽收割期】</h3>
-                      <p><strong>核心主軸：</strong> 四連賽抗壓防守！11/01 NB 10k ➔ 11/08 田中初全馬 (Sub 330) ➔ 11/15 鹿港 10k ➔ 11/29 Garmin 半馬。週間完全停跑速度間歇，專注深度睡眠與高蛋白糖原密封。</p>`,
+                      <p><strong>核心主軸：</strong> 魔鬼連賽抗壓！11/01 NB 10k ➔ 11/08 田中初全馬 (Sub 330) ➔ 11/15 鹿港 10k ➔ 11/29 Garmin 半馬。週間完全停跑速度間歇，死守深度睡眠與糖原密集密鋪。</p>`,
             weeks: {
-                w1: `<tr><td>11/01</td><td><b>NB 10KM 賽事日</b></td><td>純娛樂排乳酸跑，控速嚴禁衝衝衝</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週三</td><td>動態輕鬆慢跑 5K</td><td>常規週三修復調節</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>11/08</td><td><b>田中馬拉松 (初全馬 Sub 330)</b></td><td><b>正賽降臨！全程鎖死 4'55"~4'58" 定速推進</b></td><td><b><span class="shoe-tag carbon">adidas Adios Pro 4</span> / <span class="shoe-tag carbon">飛電6 Elite</span></b></td></tr>`,
-                w2: `<tr><td>週三</td><td>排毒漫步慢跑 5K</td><td>初全馬賽後動態排乳酸，防止核心僵硬</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>11/15</td><td><b>鹿港 10KM 賽事日</b></td><td>初全馬完賽後的動態巡航恢復跑</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>`,
-                w3: `<tr><td>週二</td><td>輕鬆意念跑 6K</td><td>重新喚醒速度快肌肌肉張力</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三調節項目</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末有氧定速跑 10K</td><td>Garmin 賽前最後配速與步頻對稱核對</td><td><span class="shoe-tag aero">Adizero Evo SL</span></td></tr>`,
-                w4: `<tr><td>週三</td><td>賽前意念喚醒跑 4K</td><td>最大化儲備大腦中樞爆發力</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>11/29</td><td><b>Garmin 半馬 (終極 PB 收割戰)</b></td><td><b>收割戰降臨！Sub 90 終極衝鋒</b></td><td><b><span class="shoe-tag carbon">adidas Adios Pro 4</span> / <span class="shoe-tag carbon">Puma Nitro Elite 3</span></b></td></tr>`
+                w1: `<tr><td>11/01</td><td><b>NB 10KM 賽事日</b></td><td>純娛樂動態排乳酸跑，控速嚴禁飆速</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週三</td><td>動態輕鬆慢跑 5K</td><td>常規週三修復調節</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>11/08</td><td><b>田中馬拉松 (初全馬 Sub 330)</b></td><td><b>首馬衝鋒！鎖死 4'55"~4'58" 巡航推進</b></td><td><b><span class="shoe-tag carbon">adidas Adios Pro 4</span> / <span class="shoe-tag carbon">飛電6 Elite</span></b></td></tr>`,
+                w2: `<tr><td>週三</td><td>排毒漫步慢跑 5K</td><td>全馬完賽後動態排乳酸，防止核心僵硬</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>11/15</td><td><b>鹿港 10KM 賽事日</b></td><td>全馬完賽後的動態恢復慢巡航</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`,
+                w3: `<tr><td>週二</td><td>輕鬆意念跑 6K</td><td>溫和喚醒快肌纖維肌肉張力</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三調節恢復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末有氧定速跑 10K</td><td>Garmin 賽前最後配速與步頻慣性核對</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`,
+                w4: `<tr><td>週慢</td><td>賽前意念喚醒跑 4K</td><td>最大化儲備中樞爆發力，靜待鳴槍</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>11/29</td><td><b>Garmin 半馬 (終極 PB 收割戰)</b></td><td><b>年度收割戰降臨！破 90 分極速衝鋒</b></td><td><b><span class="shoe-tag carbon">adidas Adios Pro 4</span> / <span class="shoe-tag carbon">Puma Nitro Elite 3</span></b></td></tr>`
             }
         }
     };
 
-    // 3. 核心階層切換渲染大腦
     function render() {
         const data = planDatabase[currentMonth];
         const box = document.getElementById('month-display-box');
-        
         if (currentView === 'summary') {
             box.innerHTML = data.summary;
         } else {
@@ -263,10 +258,10 @@
                 </div>
                 <table class="table-style">
                     <thead>
-                        <tr><th style="width:12%">星期</th><th style="width:45%">精確課表內容與跑錶設定參數</th><th style="width:23%">專項戰術備忘錄</th><th style="width:20%">大數據智慧配對跑鞋</th></tr>
+                        <tr><th style="width:12%">星期</th><th style="width:45%">精確課表內容與跑錶設定參數</th><th style="width:23%">專項戰術備忘錄</th><th style="width:20%">指揮艙精準配對跑鞋</th></tr>
                     </thead>
                     <tbody>
-                        ${data.weeks[currentWeekTab] || '<tr><td colspan="4" style="color:var(--text-sub)">多連賽或調整週，請依照當日賽事或雲端日誌指令執行。</td></tr>'}
+                        ${data.weeks[currentWeekTab] || '<tr><td colspan="4" style="color:var(--text-sub)">調整或賽事週，請依照當日賽事或雲端日誌指令執行。</td></tr>'}
                     </tbody>
                 </table>
             `;
@@ -278,7 +273,7 @@
     function changeView(vCode) { currentView = vCode; document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn-${vCode}`).classList.add('active'); render(); }
     function switchWeek(wCode) { currentWeekTab = wCode; render(); }
 
-    // 4. Google Sheets 全自動連線讀取引擎 (內建鞋鞋款自動定量安全判斷)
+    // Google Sheets 自動化高效率讀取引擎
     async function fetchCloudLogs() {
         const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
         try {
@@ -286,7 +281,7 @@
             const csvText = await response.text();
             parseCSVData(csvText);
         } catch (error) {
-            document.getElementById('log-container').innerHTML = "<p style='color:red'>雲端讀取異常，請確認 Sheets 權限是否全開。</p>";
+            document.getElementById('log-container').innerHTML = "<p style='color:red'>雲端讀取異常，請確認 Sheets 權限是否公開檢視。</p>";
         }
     }
 
@@ -306,7 +301,7 @@
 
             let kneeColor = parseInt(knee) >= 1 ? "#FF5200" : "var(--accent)";
             let coachComment = parseInt(knee) >= 1 ? 
-                `🚨 <strong>防傷警報！</strong>此役右膝反應來到 ${knee} 級。高足弓因 Fatigue 重心外偏，拉扯到外側 ITB 防線。週五重訓日絕對要死守右側臀中肌激活（側臥抬腿3組），用臀部肌群穩定度來拯救膝蓋！` : 
+                `🚨 <strong>防傷警報！</strong>此役右膝反應來到 ${knee} 級。典型高足弓因疲勞重心外偏，拉扯到外側 ITB 防線。週五重訓日絕對要死守右側臀中肌激活（側臥抬腿3組），用臀部肌群穩定度來拯救膝蓋！` : 
                 `👍 體感反饋良好。高足弓防線死守成功。190+ 精英高步頻天賦發揮了極佳的落地衝擊卸載作用，繼續穩健維持夏季築牆品質。`;
 
             LOG_DATA_STORE[logKey] = {
