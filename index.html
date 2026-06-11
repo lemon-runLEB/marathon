@@ -85,11 +85,11 @@
 <div class="container">
     <header>
         <h1>Lemon 2026 <span>馬拉松雙軌數據指揮艙</span></h1>
-        <p>🔄 三核心通道實連線 · 防卡關安全修正版</p>
+        <p>🔄 三核心通道實時連線 · GID 精準軌道對接版</p>
     </header>
 
     <div class="status-bar">
-        <div>連線狀態：<strong id="connect-status" style="color:yellow">正在與 Google 雲端建立安全同步...</strong></div>
+        <div>連線狀態：<strong id="connect-status" style="color:yellow">正在建立數據大對接...</strong></div>
         <div>天賦極速步頻：<strong>190+ spm</strong></div>
         <div>高足弓防傷線：<strong>重點死守中</strong></div>
     </div>
@@ -139,21 +139,16 @@
     </div>
 </div>
 
-<div id="logModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h3 id="modalTitle" style="color: var(--primary); margin-top: 0;"></h3>
-        <div id="modalBody" style="font-size: 0.95rem; color: #DDD;"></div>
-    </div>
-</div>
-
 <script>
-    // 你的 Google Sheets ID 固定定錨
     const SPREADSHEET_ID = "15uaZagqgbmw3pPNP86nv6ONkHPLw1SAai559kYnxVj0";
     const LOG_DATA_STORE = {};
     let CLOUD_PLAN_ROWS = []; 
     let CLOUD_RACE_ROWS = []; 
     let currentMonth = 'm6'; let currentView = 'summary'; let currentWeekTab = 'w1';
+
+    // 🌟 這裡請貼入你剛在網址列抓到的兩串純數字！
+    const PLAN_PAGE_GID = "184866247";   // 請換成『每週預計課表』分頁網址尾端的數字
+    const RACE_PAGE_GID = "1066810723";   // 請換成『賽事藍圖與對照』分頁網址尾端的數字
 
     const staticAxiom = {
         m6: `<h3>【6月 · 夏季基礎建構期】</h3><p><b>🎯 月跑量目標：</b>200 公里</p><p><b>🏃‍♂️ 訓練主軸：</b>開發有氧油箱容量，低心率慢跑築牆。週間速度刺激與神經激發。</p><p><b>🛡️ 防傷死守：</b>高足弓凡在硬地慢跑強制配置鞋墊，週五加強右側臀中肌激活（側臥抬腿3組）以保護右膝ITB。</p>`,
@@ -164,14 +159,12 @@
         m11: `<h3>【11月 · 魔鬼四連賽收割期】</h3><p><b>🏃‍♂️ 訓練主軸：</b>連賽抗壓！週間完全停跑間歇，專注深度睡眠與糖原密集密鋪，全力攻克田中初全馬與Garmin半馬。</p>`
     };
 
-    // 終極容錯防呆：採用標準分頁名稱（URL-Encoded）強制抓取
     async function startCommandCenter() {
-        const urlLog = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=%E5%B7%A5%E4%BD%9C%E8%A1%A81`;
-        const urlPlan = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=%E6%AF%8F%E9%80%B1%E9%A1%90%E8%A8%88%E8%AA%B2%E8%A1%A8`;
-        const urlRace = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=%E8%B3%BD%E4%BA%8B%E8%97%8D%E5%9C%96%E8%88%87%E5%B0%8D%E7%85%A7`;
+        const urlLog = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=0`; 
+        const urlPlan = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${PLAN_PAGE_GID}`; 
+        const urlRace = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${RACE_PAGE_GID}`; 
         
         try {
-            // 分道撈取
             const resLog = await fetch(urlLog); const csvLog = await resLog.text(); parseCSVLog(csvLog);
             const resPlan = await fetch(urlPlan); const csvPlan = await resPlan.text(); parseCSVPlan(csvPlan);
             const resRace = await fetch(urlRace); const csvRace = await resRace.text(); parseCSVRace(csvRace);
@@ -182,7 +175,7 @@
             render();
             renderRaceWall();
         } catch (e) {
-            document.getElementById('connect-status').innerText = "雲端連線失敗，請檢查 Sheets 分頁名稱與發佈網路狀態。";
+            document.getElementById('connect-status').innerText = "雲端連線失敗，請檢查代碼內的 GID 是否輸入正確。";
             document.getElementById('connect-status').style.color = "red";
         }
     }
@@ -192,7 +185,7 @@
 
     function renderRaceWall() {
         const container = document.getElementById('race-cloud-container'); container.innerHTML = "";
-        if (CLOUD_RACE_ROWS.length <= 1) { container.innerHTML = "<p style='color:var(--text-sub)'>教練正在雲端為您同步 7 大賽事藍圖卡片...</p>"; return; }
+        if (CLOUD_RACE_ROWS.length <= 1) { container.innerHTML = "<p style='color:var(--text-sub)'>雲端目前無賽事數據，請在 Sheets 的『賽事藍圖與對照』分頁中輸入。</p>"; return; }
 
         for (let i = 1; i < CLOUD_RACE_ROWS.length; i++) {
             const col = CLOUD_RACE_ROWS[i]; if (!col[0]) continue;
@@ -213,7 +206,7 @@
                         <div><div class="time-label">🏁 完賽時間</div><div class="time-value actual">${actualDisplay}</div></div>
                     </div>
                     <div style="font-size:0.8rem; color:var(--text-sub); background:var(--bg-card); padding:8px; border-radius:6px;">
-                        <b>狀態：</b>${statusUi} | <b>反饋：</b>${rFeedback}
+                        <b>狀態：</b>${statusUi} | <b>戰術反饋：</b>${rFeedback}
                     </div>
                 </div>`;
         }
@@ -264,10 +257,10 @@
             let kneeColor = parseInt(knee) >= 1 ? "#FF5200" : "var(--accent)";
             let coachComment = parseInt(knee) >= 1 ? 
                 `🚨 <strong>防傷警報！</strong>此役右膝反應來到 ${knee} 級。高足弓因 Fatigue 重心外偏，拉扯到外側 ITB 防線。週五重訓日絕對要死守右側臀中肌激活（側臥抬腿3組），用部穩定度拯救膝蓋！` : 
-                `👍 體感反饋良好。高足弓防線死守成功。190+ 精英高步頻天賦發揮了極佳的落地衝擊卸載作用，繼續穩健維持夏季築牆品質。`;
+                `👍 體感反饋良好。高足弓防線死守成功。190+ 精英高步頻天擁有了極佳的落地衝擊卸載作用，繼續穩健維持夏季築牆品質。`;
 
             LOG_DATA_STORE[logKey] = {
-                title: `📊 ${date} - ${menu} 雲端連線日誌`,
+                title: `📊 ${date} - ${menu} 雲端實時日誌`,
                 body: `<strong>🏃 跑錶實測核心數據：</strong><br>• 訓練里程：${km} km | 平均配速：${pace} /km<br>• 平均步頻：${cadence} spm | 平均心率：${hr} bpm<br><br><strong>裝備與足底防線：</strong><br>• 實戰跑鞋：${shoe} | 鞋墊：${arch}<br>• 右膝反應：<span style="color:${kneeColor}; font-weight:bold;">${knee} 級</span><br><br><strong>📝 跑者體感：</strong><br>"${feeling}"<br><br><strong>💡 智慧診斷：</strong><br>${coachComment}`
             };
 
