@@ -1,28 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>Lemon 數據艙</title>
+    <title>Lemon 馬拉松指揮艙</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { background: #0B0B0C; color: white; font-family: sans-serif; padding: 20px; }
-        .card { background: #16161A; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        body { background: #0B0B0C; color: #F5F5F7; font-family: sans-serif; padding: 20px; }
+        .card { background: #16161A; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2C2C35; }
+        .table-style { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .table-style th, .table-style td { padding: 12px; border-bottom: 1px solid #2C2C35; text-align: left; }
     </style>
 </head>
 <body>
-    <h1>Lemon 數據指揮艙</h1>
-    <div id="app" class="card">資料載入中...</div>
+    <h1>Lemon 馬拉松數據指揮艙</h1>
+    <div id="data-container">資料正在同步中...</div>
 
     <script>
-        // 這裡貼上你剛剛在 Google Sheets 發佈得到的 CSV 連結！
-        const CSV_URL = "你的 Google Sheets 發佈 CSV 連結貼在這裡"; 
+        // 這是你剛剛發佈的連結
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?output=csv";
 
         Papa.parse(CSV_URL, {
             download: true,
             header: true,
             complete: function(results) {
-                console.log("資料成功載入:", results.data);
-                document.getElementById('app').innerHTML = "資料已同步！現在你可以開始設計你的顯示表格了。";
+                const data = results.data;
+                let html = '<div class="card"><h2>訓練日誌同步</h2><table class="table-style"><thead><tr>';
+                
+                // 動態生成表頭
+                Object.keys(data[0]).forEach(key => html += `<th>${key}</th>`);
+                html += '</tr></thead><tbody>';
+
+                // 動態生成內容
+                data.forEach(row => {
+                    html += '<tr>';
+                    Object.values(row).forEach(val => html += `<td>${val}</td>`);
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table></div>';
+                document.getElementById('data-container').innerHTML = html;
             }
         });
     </script>
