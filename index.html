@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lemon 2026 馬拉松專屬數據儀表板</title>
+    <style>
+        :root {
+            --bg-main: #0B0B0C;
+            --bg-card: #16161A;
+            --bg-card-inner: #1F1F24;
+            --primary: #FF5200;
+            --accent: #00E676;
+            --text-main: #F5F5F7;
+            --text-sub: #8E8E93;
+            --border: #2C2C35;
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 25px; }
+        header h1 { margin: 0; font-size: 1.8rem; font-weight: 800; }
+        header h1 span { color: var(--primary); }
+        header p { margin: 5px 0 0; color: var(--text-sub); font-size: 0.9rem; }
+        
+        .status-bar { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px; display: flex; gap: 20px; font-size: 0.85rem; color: var(--text-sub); margin-bottom: 20px; }
+        .status-bar strong { color: var(--text-main); }
+
+        .layout-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 992px) { .layout-grid { grid-template-columns: 2.6fr 1.4fr; } }
+
+        .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+        .card h2 { margin: 0 0 15px 0; font-size: 1.25rem; font-weight: 700; }
+
+        .month-selector { display: flex; background-color: var(--bg-main); padding: 6px; border-radius: 30px; gap: 5px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .month-btn { flex: 1; background: none; border: none; color: var(--text-sub); padding: 10px 0; border-radius: 25px; cursor: pointer; font-weight: 700; font-size: 0.9rem; text-align: center; }
+        .month-btn.active { background-color: var(--primary); color: white; }
+
+        .sub-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .sub-btn { background: none; border: 1px solid var(--border); color: var(--text-sub); padding: 6px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+        .sub-btn.active { background-color: var(--bg-card-inner); color: var(--primary); border-color: var(--primary); }
+
+        .workout-box { background-color: var(--bg-card-inner); border-radius: 12px; padding: 18px; border-left: 4px solid var(--primary); }
+
+        /* 鞋款標籤與日誌方塊 */
+        .shoe-tag { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; margin: 2px; background-color: rgba(255,255,255,0.1); color: #fff; }
+        .log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+        .log-card { background-color: var(--bg-card-inner); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .log-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .log-card h4 { margin: 0; font-size: 0.95rem; }
+        .log-card p { margin: 4px 0 0 0; font-size: 0.75rem; color: var(--accent); }
+
+        .race-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 1px solid var(--primary); color: var(--primary); }
+
+        /* 彈窗 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background-color: var(--bg-card); border: 1px solid var(--border); padding: 24px; border-radius: 16px; max-width: 550px; width: 90%; position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.4rem; cursor: pointer; color: var(--text-sub); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Lemon 2026 <span>馬拉松雲端同步訓練艙</span></h1>
+        <p>🔄 本網頁與 Google Sheets 實時連線 · 免複製代碼</p>
+    </header>
+
+    <div class="status-bar">
+        <div>總控狀態：<strong style="color:var(--accent)">雲端同步正常</strong></div>
+        <div>戰略目標：<strong>半馬 Sub 90 / 全馬 Sub 330</strong></div>
+    </div>
+
+    <div class="layout-grid">
+        <main>
+            <div class="card">
+                <h2>📅 6月 - 11月 計畫展示系統</h2>
+                <div class="month-selector">
+                    <button class="month-btn active" onclick="changeMonth('m6')">6 月</button>
+                    <button class="month-btn" onclick="changeMonth('m7')">7 月</button>
+                    <button class="month-btn" onclick="changeMonth('m8')">8 月</button>
+                    <button class="month-btn" onclick="changeMonth('m9')">9 月</button>
+                    <button class="month-btn" onclick="changeMonth('m10')">10 月</button>
+                    <button class="month-btn" onclick="changeMonth('m11')">11 月</button>
+                </div>
+                <div class="sub-nav">
+                    <button class="sub-btn active" id="btn-summary" onclick="changeView('summary')">訓練戰略大綱</button>
+                    <button class="sub-btn" id="btn-detail" onclick="changeView('detail')">常規週與今日細項</button>
+                </div>
+                <div id="month-display-box"></div>
+            </div>
+
+            <div class="card">
+                <h2>📊 雲端實時訓練日誌（自動從 Excel 讀取）</h2>
+                <div class="log-grid" id="log-container">
+                    <p style="color:var(--text-sub)">正在與 Google 雲端建立安全連線...</p>
+                </div>
+            </div>
+        </main>
+
+        <aside>
+            <div class="card">
+                <h2>🗺️ 2026 固定賽事藍圖</h2>
+                <div class="race-row"><div><strong>10/31 華航馬拉松</strong><br><small style="color: var(--accent);">半馬 Sub 90</small></div><span class="badge">A 級主戰</span></div>
+                <div class="race-row"><div><strong>11/08 田中馬拉松</strong><br><small style="color: var(--accent);">初全馬 Sub 330</small></div><span class="badge">A 級主戰</span></div>
+                <div class="race-row"><div><strong>11/29 Garmin 半馬</strong><br><small style="color: var(--accent);">半馬 PB 戰</small></div><span class="badge">A 級主戰</span></div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div id="logModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3 id="modalTitle" style="color: var(--primary); margin-top: 0;"></h3>
+        <div id="modalBody" style="font-size: 0.95rem; color: #DDD;"></div>
+    </div>
+</div>
+
+<script>
+    // 你的 Google Sheets 專屬識別碼
+    const SPREADSHEET_ID = "15uaZagqgbmw3pPNP86nv6ONkHPLw1SAai559kYnxVj0";
+    const LOG_DATA_STORE = {}; // 用於暫存從 Excel 撈出來的數據
+
+    // 1. 初始化從 Google Sheets 讀取數據的函數
+    async function fetchCloudLogs() {
+        const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
+        try {
+            const response = await fetch(url);
+            const csvText = await response.text();
+            parseCSVData(csvText);
+        } catch (error) {
+            document.getElementById('log-container').innerHTML = "<p style='color:red'>雲端連線失敗，請確認 Sheets 是否已開啟『發佈到網路』。</p>";
+        }
+    }
+
+    // 2. 解析 CSV 的硬核大腦
+    function parseCSVData(csvText) {
+        const rows = csvText.split('\n').map(row => {
+            // 處理 CSV 雙引號問題
+            return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+        });
+
+        const container = document.getElementById('log-container');
+        container.innerHTML = ""; // 清空載入中字樣
+
+        // 從第 2 列開始讀取（排除表頭 Row 1）
+        for (let i = 1; i < rows.length; i++) {
+            const col = rows[i];
+            if (!col[0]) continue; // 沒填日期的空格直接跳過
+
+            const logKey = `log_${i}`;
+            const date = col[0];
+            const menu = col[1] || "常規跑";
+            const km = col[2] || "0";
+            const pace = col[3] || "--";
+            const cadence = col[4] || "--";
+            const hr = col[5] || "--";
+            const shoe = col[6] || "未指定";
+            const arch = col[7] || "否";
+            const knee = col[8] || "0";
+            const feeling = col[9] || "無異常描述";
+            const remark = col[10] || "";
+
+            // 自動判斷教練評論邏輯 (網頁端純數據展示與防傷視覺)
+            let kneeColor = knee >= 1 ? "#FF5200" : "var(--accent)";
+            let coachComment = "";
+            if (parseInt(knee) >= 1) {
+                coachComment = `🚨 <strong>防傷哨音！</strong>裡程或強度推升後右膝反應來到 ${knee} 級。高足弓重心外偏已對 ITB 造成拉扯，請務必於重訓日徹底執行右側臀中肌激活（側臥抬腿），並檢查鞋底外側磨損！`;
+            } else {
+                coachComment = `👍 體感反饋良好，高足弓高步頻防線防守成功，繼續維持有氧築牆品質。`;
+            }
+
+            // 將解析好的真實數據塞入物件中，供彈窗點選使用
+            LOG_DATA_STORE[logKey] = {
+                title: `📊 ${date} - ${menu} 實實紀錄`,
+                body: `<strong>🏃 跑錶核心數據：</strong><br>
+                       • 訓練裡程：${km} km | 平均配速：${pace} /km<br>
+                       • 平均步頻：${cadence} spm | 平均心率：${hr} bpm<br><br>
+                       <strong>👟 裝備與防護：</strong><br>
+                       • 實戰跑鞋：${shoe} | 加高足弓鞋墊：${arch}<br>
+                       • 右膝反應等級：<span style="color:${kneeColor}; font-weight:bold;">${knee} 級</span><br><br>
+                       <strong>📝 Lemon 真實體感反饋：</strong><br>
+                       "${feeling}"<br><small style='color:var(--text-sub)'>備註：${remark}</small><br><br>
+                       <strong>💡 儀表板動態分析：</strong><br>
+                       ${coachComment}`
+            };
+
+            // 在網頁畫面上直接長出按鈕
+            const borderStyle = knee >= 1 ? "border-color: var(--primary);" : "";
+            const textColor = knee >= 1 ? "color: var(--primary);" : "";
+            container.innerHTML += `
+                <div class="log-card" style="${borderStyle}" onclick="openModal('${logKey}')">
+                    <h4>${date.substring(5)}</h4>
+                    <p style="${textColor}">${menu}</p>
+                </div>
+            `;
+        }
+    }
+
+    // 3. 彈窗與計畫切換邏輯
+    function openModal(logId) {
+        const data = LOG_DATA_STORE[logId];
+        if (data) {
+            document.getElementById('modalTitle').innerHTML = data.title;
+            document.getElementById('modalBody').innerHTML = data.body;
+            document.getElementById('logModal').style.display = 'flex';
+        }
+    }
+    function closeModal() { document.getElementById('logModal').style.display = 'none'; }
+    window.onclick = function(e) { if (e.target == document.getElementById('logModal')) closeModal(); }
+
+    // (其餘月度計畫靜態展示邏輯...)
+    const planDatabase = {
+        m6: { summary: `<h3>【6月·夏季基礎建構】</h3><p>核心目標為擴大基礎有氧容量。月跑量 200km。死守高足弓防線。</p>`, detail: `<h3>【6月課表細項】</h3><div class="workout-box"><strong>週二間歇：</strong>400m * 10趟（配速 $3'50'' \sim 4'00''$），推薦戰靴 <span class="shoe-tag">adios 9</span>。</div>` },
+        m7: { summary: `<h3>【7月·耐熱築牆】</h3><p>適應高溫，死守心率與體感，專注高步頻慣性。</p>`, detail: `<h3>【7月課表細項】</h3><div class="workout-box"><strong>週日LSD：</strong>23KM 低心率慢跑（心率<140），指定 <span class="shoe-tag">Boston 13</span>。</div>` },
+        m8: { summary: `<h3>【8月·專項配速切換】</h3><p>月跑量推至 230-250km 峰值。開始磨合全馬/半馬目標配速。</p>`, detail: `<h3>【8月課表細項】</h3><div class="workout-box"><strong>週四節奏跑：</strong>12KM 定速跑（配速 $4'30'' \sim 4'35''$）。</div>` },
+        m9: { summary: `<h3>【9月·速度耐力高峰】</h3><p>09/19 西夸父娛樂測試。全力開發目標配速輕鬆度。</p>`, detail: `<h3>【9月課表細項】</h3><div class="workout-box"><strong>賽事提醒：</strong>西夸父禁硬衝，當作高強度有氧累積。</div>` },
+        m10: { summary: `<h3>【10月·賽前精準減量】</h3><p>維持速度、砍掉里程。迎接 10/31 華航半馬（Sub 90 終極主戰）。</p>`, detail: `<h3>【10月課表細項】</h3><div class="workout-box"><strong>10/31 正賽：</strong>唯一指定正賽碳板鞋 <strong>Adios Pro 4</strong> 衝擊 PB。</div>` },
+        m11: { summary: `<h3>【11月·魔鬼四連賽】</h3><p>田中初全馬 Sub 330 ➔ Garmin 半馬 Sub 90。最大化睡眠與恢復。</p>`, detail: `<h3>【11月課表細項】</h3><div class="workout-box"><strong>11/08 田中馬：</strong>鎖死 $4'55'' \sim 4'58''$ 定速推進。</div>` }
+    };
+    let currentMonth = 'm6'; let currentView = 'summary';
+    function render() { const d = planDatabase[currentMonth]; const box = document.getElementById('month-display-box'); box.innerHTML = currentView === 'summary' ? d.summary : d.detail; }
+    function changeMonth(m) { currentMonth = m; document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); render(); }
+    function changeView(v) { currentView = v; document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn-${v}`).classList.add('active'); render(); }
+    
+    // 啟動：執行渲染與雲端同步
+    render();
+    fetchCloudLogs();
+</script>
+</body>
+</html>
