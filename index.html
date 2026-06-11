@@ -7,40 +7,42 @@
     <style>
         body { background: #0B0B0C; color: #F5F5F7; font-family: sans-serif; padding: 20px; }
         .card { background: #16161A; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2C2C35; }
-        .table-style { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .table-style { width: 100%; border-collapse: collapse; }
         .table-style th, .table-style td { padding: 12px; border-bottom: 1px solid #2C2C35; text-align: left; }
     </style>
 </head>
 <body>
-    <h1>Lemon 馬拉松數據指揮艙</h1>
-    <div id="data-container">資料正在同步中...</div>
+    <h1>Lemon 馬拉松指揮艙</h1>
+    <div id="logs-panel" class="card"><h2>訓練日誌</h2><div id="logs-content">載入中...</div></div>
+    <div id="plans-panel" class="card"><h2>預計課表</h2><div id="plans-content">載入中...</div></div>
+    <div id="races-panel" class="card"><h2>賽事對照</h2><div id="races-content">載入中...</div></div>
 
     <script>
-        // 這是你剛剛發佈的連結
-        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?output=csv";
+        // 🌟 請把這三個連結貼在這！
+        const CSV_LOGS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv";
+        const CSV_PLANS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv";
+        const CSV_RACES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=1066810723&single=true&output=csv";
 
-        Papa.parse(CSV_URL, {
-            download: true,
-            header: true,
-            complete: function(results) {
-                const data = results.data;
-                let html = '<div class="card"><h2>訓練日誌同步</h2><table class="table-style"><thead><tr>';
-                
-                // 動態生成表頭
-                Object.keys(data[0]).forEach(key => html += `<th>${key}</th>`);
-                html += '</tr></thead><tbody>';
+        function fetchData(url, elementId) {
+            Papa.parse(url, {
+                download: true, header: true,
+                complete: function(results) {
+                    let html = '<table class="table-style"><thead><tr>';
+                    Object.keys(results.data[0]).forEach(k => html += `<th>${k}</th>`);
+                    html += '</tr></thead><tbody>';
+                    results.data.forEach(row => {
+                        html += '<tr>';
+                        Object.values(row).forEach(v => html += `<td>${v}</td>`);
+                        html += '</tr>';
+                    });
+                    document.getElementById(elementId).innerHTML = html + '</tbody></table>';
+                }
+            });
+        }
 
-                // 動態生成內容
-                data.forEach(row => {
-                    html += '<tr>';
-                    Object.values(row).forEach(val => html += `<td>${val}</td>`);
-                    html += '</tr>';
-                });
-
-                html += '</tbody></table></div>';
-                document.getElementById('data-container').innerHTML = html;
-            }
-        });
+        fetchData(CSV_LOGS, 'logs-content');
+        fetchData(CSV_PLANS, 'plans-content');
+        fetchData(CSV_RACES, 'races-content');
     </script>
 </body>
 </html>
