@@ -5,67 +5,63 @@
     <title>Lemon 馬拉松指揮艙</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { --bg: #0B0B0C; --card: #16161A; --primary: #FF5200; --accent: #00E676; --text: #F5F5F7; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 20px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #2C2C35; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; cursor: pointer; }
+        body { background: #0B0B0C; color: #F5F5F7; font-family: sans-serif; padding: 20px; }
+        .card { background: #16161A; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2C2C35; }
+        .nav { display: flex; gap: 10px; margin-bottom: 20px; }
+        button { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        button.active { background: #FF5200; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
         th, td { padding: 12px; border-bottom: 1px solid #2C2C35; text-align: left; }
-        tr:hover { background: #252525; }
-        .active-row { border-left: 4px solid var(--primary); background: #252525; }
-        h2 { color: var(--primary); margin-top: 0; }
+        th { color: #FF5200; }
     </style>
 </head>
 <body>
-    <h1>Lemon 馬拉松指揮艙</h1>
-    <div class="grid">
-        <div class="card">
-            <h2>預計訓練目標 (點擊該週)</h2>
-            <div id="plan-container"></div>
-        </div>
-        <div class="card">
-            <h2>對應實際執行紀錄</h2>
-            <div id="log-container">請選擇左側課表以查看對照紀錄</div>
-        </div>
+    <h1>Lemon 馬拉松數據指揮艙</h1>
+    <div class="nav">
+        <button id="btn-logs" class="active" onclick="switchTab('logs')">訓練日誌</button>
+        <button id="btn-plans" onclick="switchTab('plans')">預計課表</button>
+        <button id="btn-races" onclick="switchTab('races')">賽事對照</button>
     </div>
 
+    <div id="logs" class="panel active"><div class="card"><h2>真實訓練日誌</h2><div id="logs-content"></div></div></div>
+    <div id="plans" class="panel"><div class="card"><h2>每週預計課表</h2><div id="plans-content"></div></div></div>
+    <div id="races" class="panel"><div class="card"><h2>賽事對照與反饋</h2><div id="races-content"></div></div></div>
+
     <script>
-        // 這裡填入你剛剛測試成功的課表 CSV 連結與日誌 CSV 連結
-        const PLAN_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv";
-        const LOG_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv";
+        // 這裡填入你三個分頁的獨立 CSV 連結
+        const URLS = {
+            logs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv",
+            plans: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv",
+            races: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=1066810723&single=true&output=csv"
+        };
 
-        let planData = [], logData = [];
-
-        // 讀取兩組數據
-        Promise.all([
-            new Promise(res => Papa.parse(PLAN_URL, {download: true, header: true, complete: res})),
-            new Promise(res => Papa.parse(LOG_URL, {download: true, header: true, complete: res}))
-        ]).then(([p, l]) => {
-            planData = p.data;
-            logData = l.data;
-            renderPlans();
-        });
-
-        function renderPlans() {
-            let html = '<table class="table-style"><thead><tr><th>週期</th><th>項目</th><th>目標配速</th></tr></thead><tbody>';
-            planData.forEach((row, index) => {
-                html += `<tr onclick="matchLogs('${row.週數}', this)"><td>${row.週數}</td><td>${row.課表內容}</td><td>${row.目標配速}</td></tr>`;
-            });
-            document.getElementById('plan-container').innerHTML = html + '</tbody></table>';
+        function switchTab(id) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-' + id).classList.add('active');
         }
 
-        // 互動邏輯：點選計畫，篩選出對應的日誌
-        function matchLogs(weekId, element) {
-            document.querySelectorAll('tr').forEach(tr => tr.classList.remove('active-row'));
-            element.classList.add('active-row');
-            
-            let filtered = logData.filter(log => log.週數 === weekId);
-            let html = `<table class="table-style"><thead><tr><th>日期</th><th>里程</th><th>實際配速</th></tr></thead><tbody>`;
-            filtered.forEach(log => {
-                html += `<tr><td>${log.日期}</td><td>${log.里程}</td><td>${log.實際配速}</td></tr>`;
+        function load(key) {
+            Papa.parse(URLS[key], {
+                download: true, header: true,
+                complete: function(results) {
+                    let html = '<table class="table-style"><thead><tr>';
+                    Object.keys(results.data[0]).forEach(k => html += `<th>${k}</th>`);
+                    html += '</tr></thead><tbody>';
+                    results.data.forEach(row => {
+                        html += '<tr>';
+                        Object.values(row).forEach(v => html += `<td>${v}</td>`);
+                        html += '</tr>';
+                    });
+                    document.getElementById(key + '-content').innerHTML = html + '</tbody></table>';
+                }
             });
-            document.getElementById('log-container').innerHTML = filtered.length > 0 ? html + '</tbody></table>' : "該週尚未填寫紀錄";
         }
+
+        load('logs'); load('plans'); load('races');
     </script>
 </body>
 </html>
