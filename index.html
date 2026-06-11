@@ -85,7 +85,7 @@
 <div class="container">
     <header>
         <h1>Lemon 2026 <span>馬拉松雙軌數據指揮艙</span></h1>
-        <p>🔄 三核心通道實時連線 · GID 精準軌道對接版</p>
+        <p>🔄 三核心通道實時連線 · GID 軌道強制修正定錨版</p>
     </header>
 
     <div class="status-bar">
@@ -146,9 +146,10 @@
     let CLOUD_RACE_ROWS = []; 
     let currentMonth = 'm6'; let currentView = 'summary'; let currentWeekTab = 'w1';
 
-    // 🌟 這裡請貼入你剛在網址列抓到的兩串純數字！
-    const PLAN_PAGE_GID = "184866247";   // 請換成『每週預計課表』分頁網址尾端的數字
-    const RACE_PAGE_GID = "1066810723";   // 請換成『賽事藍圖與對照』分頁網址尾端的數字
+    // 🌟🌟🌟【最核心的一步：請把底下的 YOUR_數字 換成你複製的數字！】🌟🌟🌟
+    const LOG_PAGE_GID = "0";               // 請換成『工作表1』網址尾端的 gid 數字 (通常是 0)
+    const PLAN_PAGE_GID = "184866247";   // 請換成『每週預計課表』網址尾端的 gid 數字
+    const RACE_PAGE_GID = "1066810723";   // 請換成『賽事藍圖與對照』網址尾端的 gid 數字
 
     const staticAxiom = {
         m6: `<h3>【6月 · 夏季基礎建構期】</h3><p><b>🎯 月跑量目標：</b>200 公里</p><p><b>🏃‍♂️ 訓練主軸：</b>開發有氧油箱容量，低心率慢跑築牆。週間速度刺激與神經激發。</p><p><b>🛡️ 防傷死守：</b>高足弓凡在硬地慢跑強制配置鞋墊，週五加強右側臀中肌激活（側臥抬腿3組）以保護右膝ITB。</p>`,
@@ -160,7 +161,7 @@
     };
 
     async function startCommandCenter() {
-        const urlLog = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=0`; 
+        const urlLog = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${LOG_PAGE_GID}`; 
         const urlPlan = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${PLAN_PAGE_GID}`; 
         const urlRace = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${RACE_PAGE_GID}`; 
         
@@ -257,7 +258,7 @@
             let kneeColor = parseInt(knee) >= 1 ? "#FF5200" : "var(--accent)";
             let coachComment = parseInt(knee) >= 1 ? 
                 `🚨 <strong>防傷警報！</strong>此役右膝反應來到 ${knee} 級。高足弓因 Fatigue 重心外偏，拉扯到外側 ITB 防線。週五重訓日絕對要死守右側臀中肌激活（側臥抬腿3組），用部穩定度拯救膝蓋！` : 
-                `👍 體感反饋良好。高足弓防線死守成功。190+ 精英高步頻天擁有了極佳的落地衝擊卸載作用，繼續穩健維持夏季築牆品質。`;
+                `👍 體感反饋良好。高足弓防線死守成功。190+ 精英高步頻天賦發揮了極佳的落地衝擊卸載作用，繼續穩健維持夏季築牆品質。`;
 
             LOG_DATA_STORE[logKey] = {
                 title: `📊 ${date} - ${menu} 雲端實時日誌`,
