@@ -85,11 +85,11 @@
 <div class="container">
     <header>
         <h1>Lemon 2026 <span>馬拉松雙軌數據指揮艙</span></h1>
-        <p>🔄 三核心通道實時連線 · GID 軌道強制修正定錨版</p>
+        <p>🔄 三核心通道實時連線 · 免填 GID 智慧穿透防卡版</p>
     </header>
 
     <div class="status-bar">
-        <div>連線狀態：<strong id="connect-status" style="color:yellow">正在建立數據大對接...</strong></div>
+        <div>連線狀態：<strong id="connect-status" style="color:yellow">正在穿透雲端進行大對接...</strong></div>
         <div>天賦極速步頻：<strong>190+ spm</strong></div>
         <div>高足弓防傷線：<strong>重點死守中</strong></div>
     </div>
@@ -146,24 +146,20 @@
     let CLOUD_RACE_ROWS = []; 
     let currentMonth = 'm6'; let currentView = 'summary'; let currentWeekTab = 'w1';
 
-    // 🌟🌟🌟【最核心的一步：請把底下的 YOUR_數字 換成你複製的數字！】🌟🌟🌟
-    const LOG_PAGE_GID = "0";               // 請換成『工作表1』網址尾端的 gid 數字 (通常是 0)
-    const PLAN_PAGE_GID = "184866247";   // 請換成『每週預計課表』網址尾端的 gid 數字
-    const RACE_PAGE_GID = "1066810723";   // 請換成『賽事藍圖與對照』網址尾端的 gid 數字
-
     const staticAxiom = {
         m6: `<h3>【6月 · 夏季基礎建構期】</h3><p><b>🎯 月跑量目標：</b>200 公里</p><p><b>🏃‍♂️ 訓練主軸：</b>開發有氧油箱容量，低心率慢跑築牆。週間速度刺激與神經激發。</p><p><b>🛡️ 防傷死守：</b>高足弓凡在硬地慢跑強制配置鞋墊，週五加強右側臀中肌激活（側臥抬腿3組）以保護右膝ITB。</p>`,
-        m7: `<h3>【7月 · 耐熱築牆期】</h3><p><b>🎯 月跑量目標：</b>210 - 220 公里</p><p><b>🏃‍♂️ 訓練主軸：</b>盛夏高溫耐熱適應。核心心率鎖死在 140 bpm 以下，注重呼吸調節與高步頻慣性。</p>`,
+        m7: `<h3>【7月 · 耐熱築牆期】</h3><p><b>🎯 月跑量目標：</b>210 - 220 公里</p><p><b>🏃‍♂️ 訓練主軸：</b>盛夏高溫耐熱適應.核心心率鎖死在 140 bpm 以下，注重呼吸調節與高步頻慣性。</p>`,
         m8: `<h3>【8月 · 強度切換期】</h3><p><b>🎯 月跑量目標：</b>230 - 250 公里 (年度最高峰)</p><p><b>🏃‍♂️ 訓練主軸：</b>進入半馬專項強度切換。週間加重乳酸閾值跑（Tempo跑）比例，配速定錨在 4'30"~4'35"，拉高抗疲勞剛性。</p>`,
         m9: `<h3>【9月 · 速度耐力高峰期】</h3><p><b>🏃‍♂️ 訓練主軸：</b>09/19 西夸父長距離實測。全面內化半馬 4'15" 目標配速體感。</p>`,
         m10: `<h3>【10月 · 賽前精準減量期】</h3><p><b>🏃‍♂️ 訓練主軸：</b>月跑量大砍 30%-40% 消除疲勞，維持快肌神經張力。迎戰 10/31 華航半馬（Sub 90）。</p>`,
         m11: `<h3>【11月 · 魔鬼四連賽收割期】</h3><p><b>🏃‍♂️ 訓練主軸：</b>連賽抗壓！週間完全停跑間歇，專注深度睡眠與糖原密集密鋪，全力攻克田中初全馬與Garmin半馬。</p>`
     };
 
+    // 🚀 智慧型名字穿透法：直接避開 gid 限制，強制要求 Google 依分頁名稱轉換
     async function startCommandCenter() {
-        const urlLog = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${LOG_PAGE_GID}`; 
-        const urlPlan = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${PLAN_PAGE_GID}`; 
-        const urlRace = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${RACE_PAGE_GID}`; 
+        const urlLog = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=%E5%B5%A5%E4%BD%9C%E8%A1%A81`; 
+        const urlPlan = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=%E6%AF%8F%E9%80%B1%E9%A1%90%E8%A8%88%E8%AA%B2%E8%A1%A8`; 
+        const urlRace = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=%E8%B3%BD%E4%BA%8B%E8%97%8D%E5%9C%96%E8%88%87%E5%B0%8D%E7%85%A7`; 
         
         try {
             const resLog = await fetch(urlLog); const csvLog = await resLog.text(); parseCSVLog(csvLog);
@@ -176,22 +172,29 @@
             render();
             renderRaceWall();
         } catch (e) {
-            document.getElementById('connect-status').innerText = "雲端連線失敗，請檢查代碼內的 GID 是否輸入正確。";
+            document.getElementById('connect-status').innerText = "連線遭拒！請在 Excel 右上角點藍色『共用』➔ 將一般存取權改為『知道連結的人皆可檢視』。";
             document.getElementById('connect-status').style.color = "red";
         }
     }
 
-    function parseCSVPlan(csvText) { CLOUD_PLAN_ROWS = csvText.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim())); }
-    function parseCSVRace(csvText) { CLOUD_RACE_ROWS = csvText.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim())); }
+    function parseCSVPlan(csvText) { 
+        let rawRows = csvText.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim()));
+        // 防容錯過濾器：過濾篩選亂碼
+        CLOUD_PLAN_ROWS = rawRows.filter(r => r.length >= 2 && r[0] !== "");
+    }
+    function parseCSVRace(csvText) { 
+        let rawRows = csvText.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim()));
+        CLOUD_RACE_ROWS = rawRows.filter(r => r.length >= 2 && r[0] !== "");
+    }
 
     function renderRaceWall() {
         const container = document.getElementById('race-cloud-container'); container.innerHTML = "";
         if (CLOUD_RACE_ROWS.length <= 1) { container.innerHTML = "<p style='color:var(--text-sub)'>雲端目前無賽事數據，請在 Sheets 的『賽事藍圖與對照』分頁中輸入。</p>"; return; }
 
         for (let i = 1; i < CLOUD_RACE_ROWS.length; i++) {
-            const col = CLOUD_RACE_ROWS[i]; if (!col[0]) continue;
+            const col = CLOUD_RACE_ROWS[i]; if (!col[0] || col[0].includes("賽事")) continue;
             const rDate = col[0]; const rName = col[1]; const rLevel = col[2] || "C級娛樂";
-            const rTarget = col[3] || "--"; const rActual = col[4] || ""; const rFeedback = col[5] || "尚未開賽";
+            const rTarget = col[3] || "--"; const rActual = col[4] || ""; const rFeedback = col[5] || "備戰中";
 
             let statusUi = rActual ? `<span style="color:var(--accent); font-weight:bold;">已完賽 ✓</span>` : `<span style="color:var(--primary); font-weight:bold;">備戰中 🏃‍♂️</span>`;
             let actualDisplay = rActual ? rActual : "等待填入...";
@@ -233,7 +236,7 @@
 
         let hasData = false;
         for (let i = 1; i < CLOUD_PLAN_ROWS.length; i++) {
-            const col = CLOUD_PLAN_ROWS[i]; if (!col[0]) continue;
+            const col = CLOUD_PLAN_ROWS[i]; if (!col[0] || col[0].includes("週期")) continue;
             const week = col[0]; const day = col[1]; const text = col[2]; const memo = col[3]; const shoe = col[4]; const month = col[5];
 
             if (month === currentMonth && week === currentWeekTab) {
@@ -258,7 +261,7 @@
             let kneeColor = parseInt(knee) >= 1 ? "#FF5200" : "var(--accent)";
             let coachComment = parseInt(knee) >= 1 ? 
                 `🚨 <strong>防傷警報！</strong>此役右膝反應來到 ${knee} 級。高足弓因 Fatigue 重心外偏，拉扯到外側 ITB 防線。週五重訓日絕對要死守右側臀中肌激活（側臥抬腿3組），用部穩定度拯救膝蓋！` : 
-                `👍 體感反饋良好。高足弓防線死守成功。190+ 精英高步頻天賦發揮了極佳的落地衝擊卸載作用，繼續穩健維持夏季築牆品質。`;
+                `👍 體感反饋良好。高足弓防線死守成功。190+ 精英高步頻天揮發揮了極佳的落地衝擊卸載作用，繼續穩健維持夏季築牆品質。`;
 
             LOG_DATA_STORE[logKey] = {
                 title: `📊 ${date} - ${menu} 雲端實時日誌`,
