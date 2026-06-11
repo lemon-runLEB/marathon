@@ -1,288 +1,30 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lemon 2026 馬拉松數據指揮艙</title>
+    <title>Lemon 數據艙</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root {
-            --bg-main: #0B0B0C;
-            --bg-card: #16161A;
-            --bg-card-inner: #1F1F24;
-            --primary: #FF5200; 
-            --accent: #00E676;  
-            --text-main: #F5F5F7;
-            --text-sub: #8E8E93;
-            --border: #2C2C35;
-        }
-
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 20px; line-height: 1.6; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        header { padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 25px; }
-        header h1 { margin: 0; font-size: 1.8rem; font-weight: 800; }
-        header h1 span { color: var(--primary); }
-        header p { margin: 5px 0 0; color: var(--text-sub); font-size: 0.9rem; }
-        
-        .status-bar { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px; display: flex; gap: 20px; font-size: 0.85rem; color: var(--text-sub); margin-bottom: 20px; overflow-x: auto; }
-        .status-bar strong { color: var(--text-main); }
-
-        .main-nav { display: flex; gap: 15px; margin-bottom: 20px; background-color: var(--bg-card); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border); }
-        .nav-btn { background: none; border: none; color: var(--text-sub); font-size: 1rem; font-weight: bold; padding: 8px 16px; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
-        .nav-btn.active { background-color: var(--primary); color: white; }
-
-        .layout-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 992px) { .layout-grid { grid-template-columns: 2.5fr 1.5fr; } }
-
-        .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
-        .card h2 { margin: 0 0 15px 0; font-size: 1.25rem; font-weight: 700; }
-
-        .month-selector { display: flex; background-color: var(--bg-main); padding: 6px; border-radius: 30px; gap: 5px; margin-bottom: 20px; border: 1px solid var(--border); overflow-x: auto; }
-        .month-btn { flex: 1; min-width: 60px; background: none; border: none; color: var(--text-sub); padding: 10px 0; border-radius: 25px; cursor: pointer; font-weight: 700; font-size: 0.9rem; text-align: center; white-space: nowrap; }
-        .month-btn.active { background-color: var(--primary); color: white; }
-
-        .sub-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-        .sub-btn { background: none; border: 1px solid var(--border); color: var(--text-sub); padding: 6px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
-        .sub-btn.active { background-color: var(--bg-card-inner); color: var(--primary); border-color: var(--primary); }
-
-        .week-selector { display: flex; gap: 8px; margin: 15px 0; }
-        .week-btn { background-color: var(--bg-card-inner); border: 1px solid var(--border); color: var(--text-sub); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
-        .week-btn.active { border-color: var(--accent); color: var(--accent); }
-
-        .shoe-tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin: 1px; background-color: rgba(255,255,255,0.1); color: #fff; border: 1px solid #555; }
-
-        .table-style { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; margin-top: 5px; }
-        .table-style th { color: var(--primary); padding: 10px 8px; border-bottom: 1px solid var(--border); background-color: var(--bg-card-inner); }
-        .table-style td { padding: 10px 8px; border-bottom: 1px solid #252525; vertical-align: top; }
-
-        .log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-        .log-card { background-color: var(--bg-card-inner); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .log-card:hover { border-color: var(--primary); transform: translateY(-2px); }
-        .log-card h4 { margin: 0; font-size: 0.95rem; }
-        .log-card p { margin: 4px 0 0 0; font-size: 0.75rem; color: var(--accent); }
-
-        .page-panel { display: none; }
-        .page-panel.active { display: block; }
-
-        .race-box-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
-        @media (min-width: 768px) { .race-box-grid { grid-template-columns: 1fr 1fr; } }
-        .race-detail-card { background-color: var(--bg-card-inner); border: 1px solid var(--border); border-radius: 12px; padding: 20px; border-top: 4px solid var(--primary); }
-        .race-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #2D2D35; padding-bottom: 10px; margin-bottom: 12px; }
-        .race-title { font-weight: bold; font-size: 1.1rem; color: var(--text-main); }
-        .race-date-text { font-size: 0.8rem; color: var(--text-sub); }
-        .race-badge-ui { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; background: rgba(255, 82, 0, 0.15); color: var(--primary); border: 1px solid var(--primary); }
-        .time-box-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #16161A; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
-        .time-label { font-size: 0.75rem; color: var(--text-sub); }
-        .time-value { font-size: 1.1rem; font-weight: bold; color: var(--text-main); }
-        .time-value.actual { color: var(--accent); }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background-color: var(--bg-card); border: 1px solid var(--border); padding: 24px; border-radius: 16px; max-width: 550px; width: 90%; position: relative; }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.4rem; cursor: pointer; color: var(--text-sub); }
+        body { background: #0B0B0C; color: white; font-family: sans-serif; padding: 20px; }
+        .card { background: #16161A; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
+    <h1>Lemon 數據指揮艙</h1>
+    <div id="app" class="card">資料載入中...</div>
 
-<div class="container">
-    <header>
-        <h1>Lemon 2026 <span>馬拉松雙軌數據指揮艙</span></h1>
-        <p>🔄 三核心通道實時連線 · 免填 GID 智慧穿透防卡版</p>
-    </header>
+    <script>
+        // 這裡貼上你剛剛在 Google Sheets 發佈得到的 CSV 連結！
+        const CSV_URL = "你的 Google Sheets 發佈 CSV 連結貼在這裡"; 
 
-    <div class="status-bar">
-        <div>連線狀態：<strong id="connect-status" style="color:yellow">正在穿透雲端進行大對接...</strong></div>
-        <div>天賦極速步頻：<strong>190+ spm</strong></div>
-        <div>高足弓防傷線：<strong>重點死守中</strong></div>
-    </div>
-
-    <div class="main-nav">
-        <button class="nav-btn active" id="nav-btn-core" onclick="switchMainPage('core')">📅 週期化計畫與日誌系統</button>
-        <button class="nav-btn" id="nav-btn-races" onclick="switchMainPage('races')">🏆 雲端賽事動態管理與時間對照</button>
-    </div>
-
-    <div id="page-panel-core" class="page-panel active">
-        <div class="layout-grid">
-            <div class="card">
-                <h2>📅 雲端週期化計畫展示系統</h2>
-                <div class="month-selector">
-                    <button class="month-btn active" onclick="changeMonth('m6')">6 月</button>
-                    <button class="month-btn" onclick="changeMonth('m7')">7 月</button>
-                    <button class="month-btn" onclick="changeMonth('m8')">8 月</button>
-                    <button class="month-btn" onclick="changeMonth('m9')">9 月</button>
-                    <button class="month-btn" onclick="changeMonth('m10')">10 月</button>
-                    <button class="month-btn" onclick="changeMonth('m11')">11 月</button>
-                </div>
-                <div class="sub-nav">
-                    <button class="sub-btn active" id="btn-summary" onclick="changeView('summary')">每個月訓練大綱</button>
-                    <button class="sub-btn" id="btn-detail" onclick="changeView('detail')">每週與每日課表細項</button>
-                </div>
-                <div id="month-display-box">
-                    <p style="color:var(--text-sub)">正在載入大綱...</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>📊 雲端實時訓練日誌</h2>
-                <div class="log-grid" id="log-container">
-                    <p style="color:var(--text-sub)">等待雲端同步中...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="page-panel-races" class="page-panel">
-        <div class="card">
-            <h2>🏆 2026年年度目標賽事進程與實際成績對照牆</h2>
-            <div class="race-box-grid" id="race-cloud-container">
-                <p style="color:var(--text-sub)">等待雲端賽事資料載入...</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const SPREADSHEET_ID = "15uaZagqgbmw3pPNP86nv6ONkHPLw1SAai559kYnxVj0";
-    const LOG_DATA_STORE = {};
-    let CLOUD_PLAN_ROWS = []; 
-    let CLOUD_RACE_ROWS = []; 
-    let currentMonth = 'm6'; let currentView = 'summary'; let currentWeekTab = 'w1';
-
-    const staticAxiom = {
-        m6: `<h3>【6月 · 夏季基礎建構期】</h3><p><b>🎯 月跑量目標：</b>200 公里</p><p><b>🏃‍♂️ 訓練主軸：</b>開發有氧油箱容量，低心率慢跑築牆。週間速度刺激與神經激發。</p><p><b>🛡️ 防傷死守：</b>高足弓凡在硬地慢跑強制配置鞋墊，週五加強右側臀中肌激活（側臥抬腿3組）以保護右膝ITB。</p>`,
-        m7: `<h3>【7月 · 耐熱築牆期】</h3><p><b>🎯 月跑量目標：</b>210 - 220 公里</p><p><b>🏃‍♂️ 訓練主軸：</b>盛夏高溫耐熱適應.核心心率鎖死在 140 bpm 以下，注重呼吸調節與高步頻慣性。</p>`,
-        m8: `<h3>【8月 · 強度切換期】</h3><p><b>🎯 月跑量目標：</b>230 - 250 公里 (年度最高峰)</p><p><b>🏃‍♂️ 訓練主軸：</b>進入半馬專項強度切換。週間加重乳酸閾值跑（Tempo跑）比例，配速定錨在 4'30"~4'35"，拉高抗疲勞剛性。</p>`,
-        m9: `<h3>【9月 · 速度耐力高峰期】</h3><p><b>🏃‍♂️ 訓練主軸：</b>09/19 西夸父長距離實測。全面內化半馬 4'15" 目標配速體感。</p>`,
-        m10: `<h3>【10月 · 賽前精準減量期】</h3><p><b>🏃‍♂️ 訓練主軸：</b>月跑量大砍 30%-40% 消除疲勞，維持快肌神經張力。迎戰 10/31 華航半馬（Sub 90）。</p>`,
-        m11: `<h3>【11月 · 魔鬼四連賽收割期】</h3><p><b>🏃‍♂️ 訓練主軸：</b>連賽抗壓！週間完全停跑間歇，專注深度睡眠與糖原密集密鋪，全力攻克田中初全馬與Garmin半馬。</p>`
-    };
-
-    // 🚀 智慧型名字穿透法：直接避開 gid 限制，強制要求 Google 依分頁名稱轉換
-    async function startCommandCenter() {
-        const urlLog = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=%E5%B5%A5%E4%BD%9C%E8%A1%A81`; 
-        const urlPlan = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=%E6%AF%8F%E9%80%B1%E9%A1%90%E8%A8%88%E8%AA%B2%E8%A1%A8`; 
-        const urlRace = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=%E8%B3%BD%E4%BA%8B%E8%97%8D%E5%9C%96%E8%88%87%E5%B0%8D%E7%85%A7`; 
-        
-        try {
-            const resLog = await fetch(urlLog); const csvLog = await resLog.text(); parseCSVLog(csvLog);
-            const resPlan = await fetch(urlPlan); const csvPlan = await resPlan.text(); parseCSVPlan(csvPlan);
-            const resRace = await fetch(urlRace); const csvRace = await resRace.text(); parseCSVRace(csvRace);
-            
-            document.getElementById('connect-status').innerText = "雲端同步成功 ✓";
-            document.getElementById('connect-status').style.color = "var(--accent)";
-            
-            render();
-            renderRaceWall();
-        } catch (e) {
-            document.getElementById('connect-status').innerText = "連線遭拒！請在 Excel 右上角點藍色『共用』➔ 將一般存取權改為『知道連結的人皆可檢視』。";
-            document.getElementById('connect-status').style.color = "red";
-        }
-    }
-
-    function parseCSVPlan(csvText) { 
-        let rawRows = csvText.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim()));
-        // 防容錯過濾器：過濾篩選亂碼
-        CLOUD_PLAN_ROWS = rawRows.filter(r => r.length >= 2 && r[0] !== "");
-    }
-    function parseCSVRace(csvText) { 
-        let rawRows = csvText.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim()));
-        CLOUD_RACE_ROWS = rawRows.filter(r => r.length >= 2 && r[0] !== "");
-    }
-
-    function renderRaceWall() {
-        const container = document.getElementById('race-cloud-container'); container.innerHTML = "";
-        if (CLOUD_RACE_ROWS.length <= 1) { container.innerHTML = "<p style='color:var(--text-sub)'>雲端目前無賽事數據，請在 Sheets 的『賽事藍圖與對照』分頁中輸入。</p>"; return; }
-
-        for (let i = 1; i < CLOUD_RACE_ROWS.length; i++) {
-            const col = CLOUD_RACE_ROWS[i]; if (!col[0] || col[0].includes("賽事")) continue;
-            const rDate = col[0]; const rName = col[1]; const rLevel = col[2] || "C級娛樂";
-            const rTarget = col[3] || "--"; const rActual = col[4] || ""; const rFeedback = col[5] || "備戰中";
-
-            let statusUi = rActual ? `<span style="color:var(--accent); font-weight:bold;">已完賽 ✓</span>` : `<span style="color:var(--primary); font-weight:bold;">備戰中 🏃‍♂️</span>`;
-            let actualDisplay = rActual ? rActual : "等待填入...";
-
-            container.innerHTML += `
-                <div class="race-detail-card">
-                    <div class="race-header">
-                        <div><div class="race-title">${rName}</div><div class="race-date-text">📅 日期：${rDate}</div></div>
-                        <span class="race-badge-ui">${rLevel}</span>
-                    </div>
-                    <div class="time-box-grid">
-                        <div><div class="time-label">⏱ 目標時間</div><div class="time-value">${rTarget}</div></div>
-                        <div><div class="time-label">🏁 完賽時間</div><div class="time-value actual">${actualDisplay}</div></div>
-                    </div>
-                    <div style="font-size:0.8rem; color:var(--text-sub); background:var(--bg-card); padding:8px; border-radius:6px;">
-                        <b>狀態：</b>${statusUi} | <b>戰術反饋：</b>${rFeedback}
-                    </div>
-                </div>`;
-        }
-    }
-
-    function render() {
-        const box = document.getElementById('month-display-box');
-        if (currentView === 'summary') { box.innerHTML = staticAxiom[currentMonth] || "<h3>計畫建構中</h3>"; return; }
-
-        let html = `
-            <div class="week-selector">
-                <button class="week-btn ${currentWeekTab==='w1'?'active':''}" onclick="switchWeek('w1')">第一週菜單</button>
-                <button class="week-btn ${currentWeekTab==='w2'?'active':''}" onclick="switchWeek('w2')">第二週菜單</button>
-                <button class="week-btn ${currentWeekTab==='w3'?'active':''}" onclick="switchWeek('w3')">第三週菜單</button>
-                <button class="week-btn ${currentWeekTab==='w4'?'active':''}" onclick="switchWeek('w4')">第四週菜單</button>
-            </div>
-            <table class="table-style">
-                <thead>
-                    <tr><th style="width:12%">星期</th><th style="width:45%">精確課表內容與跑錶設定參數</th><th style="width:23%">專項戰術備忘錄</th><th style="width:20%">智慧配對跑鞋</th></tr>
-                </thead>
-                <tbody>
-        `;
-
-        let hasData = false;
-        for (let i = 1; i < CLOUD_PLAN_ROWS.length; i++) {
-            const col = CLOUD_PLAN_ROWS[i]; if (!col[0] || col[0].includes("週期")) continue;
-            const week = col[0]; const day = col[1]; const text = col[2]; const memo = col[3]; const shoe = col[4]; const month = col[5];
-
-            if (month === currentMonth && week === currentWeekTab) {
-                hasData = true;
-                html += `<tr><td style="font-weight:bold">${day}</td><td>${text}</td><td><small style="color:var(--text-sub)">${memo}</small></td><td><span class="shoe-tag">${shoe}</span></td></tr>`;
+        Papa.parse(CSV_URL, {
+            download: true,
+            header: true,
+            complete: function(results) {
+                console.log("資料成功載入:", results.data);
+                document.getElementById('app').innerHTML = "資料已同步！現在你可以開始設計你的顯示表格了。";
             }
-        }
-        if (!hasData) { html += `<tr><td colspan="4" style="color:var(--text-sub); text-align:center; padding:20px;">教練已在網頁代碼中為您預留空間。請將教練提供之每週建議課表複製貼入 Excel 中。</td></tr>`; }
-        html += `</tbody></table>`; box.innerHTML = html;
-    }
-
-    function parseCSVLog(csvText) {
-        const rows = csvText.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim()));
-        const container = document.getElementById('log-container'); container.innerHTML = ""; 
-
-        for (let i = 1; i < rows.length; i++) {
-            const col = rows[i]; if (!col[0] || col[0].includes("日期")) continue; 
-            const logKey = `log_${i}`; const date = col[0]; const menu = col[1]; const km = col[2];
-            const pace = col[3]; const cadence = col[4]; const hr = col[5]; const shoe = col[6]; 
-            const arch = col[7]; const knee = col[8]; const feeling = col[9]; const remark = col[10] || "";
-
-            let kneeColor = parseInt(knee) >= 1 ? "#FF5200" : "var(--accent)";
-            let coachComment = parseInt(knee) >= 1 ? 
-                `🚨 <strong>防傷警報！</strong>此役右膝反應來到 ${knee} 級。高足弓因 Fatigue 重心外偏，拉扯到外側 ITB 防線。週五重訓日絕對要死守右側臀中肌激活（側臥抬腿3組），用部穩定度拯救膝蓋！` : 
-                `👍 體感反饋良好。高足弓防線死守成功。190+ 精英高步頻天揮發揮了極佳的落地衝擊卸載作用，繼續穩健維持夏季築牆品質。`;
-
-            LOG_DATA_STORE[logKey] = {
-                title: `📊 ${date} - ${menu} 雲端實時日誌`,
-                body: `<strong>🏃 跑錶實測核心數據：</strong><br>• 訓練里程：${km} km | 平均配速：${pace} /km<br>• 平均步頻：${cadence} spm | 平均心率：${hr} bpm<br><br><strong>裝備與足底防線：</strong><br>• 實戰跑鞋：${shoe} | 鞋墊：${arch}<br>• 右膝反應：<span style="color:${kneeColor}; font-weight:bold;">${knee} 級</span><br><br><strong>📝 跑者體感：</strong><br>"${feeling}"<br><br><strong>💡 智慧診斷：</strong><br>${coachComment}`
-            };
-
-            const borderStyle = parseInt(knee) >= 1 ? "border-color: var(--primary);" : "";
-            const textColor = parseInt(knee) >= 1 ? "color: var(--primary);" : "";
-            container.innerHTML += `<div class="log-card" style="${borderStyle}" onclick="openModal('${logKey}')"><h4>${date.substring(5)}</h4><p style="${textColor}">${menu}</p></div>`;
-        }
-    }
-
-    function switchMainPage(pId) { document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.getElementById(`page-panel-${pId}`).classList.add('active'); document.getElementById(`nav-btn-${pId}`).classList.add('active'); }
-    function changeMonth(m) { currentMonth = m; currentWeekTab = 'w1'; document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); render(); }
-    function changeView(v) { currentView = v; document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn-${v}`).classList.add('active'); render(); }
-    function switchWeek(w) { currentWeekTab = w; render(); }
-    function openModal(id) { const d = LOG_DATA_STORE[id]; if (d) { document.getElementById('modalTitle').innerHTML = d.title; document.getElementById('modalBody').innerHTML = d.body; document.getElementById('logModal').style.display = 'flex'; } }
-    function closeModal() { document.getElementById('logModal').style.display = 'none'; }
-    window.onclick = function(e) { if (e.target == document.getElementById('logModal')) closeModal(); }
-    
-    startCommandCenter();
-</script>
+        });
+    </script>
 </body>
 </html>
