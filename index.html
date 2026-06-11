@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lemon 2026 馬拉松專屬數據指揮艙</title>
+    <title>Lemon 2026 馬拉松數據指揮艙</title>
     <style>
         :root {
             --bg-main: #0B0B0C;
@@ -26,8 +26,12 @@
         .status-bar { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px; display: flex; gap: 20px; font-size: 0.85rem; color: var(--text-sub); margin-bottom: 20px; overflow-x: auto; }
         .status-bar strong { color: var(--text-main); }
 
+        /* 大導覽頁籤系統 */
+        .main-nav { display: flex; gap: 15px; margin-bottom: 20px; background-color: var(--bg-card); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border); }
+        .nav-btn { background: none; border: none; color: var(--text-sub); font-size: 1rem; font-weight: bold; padding: 8px 16px; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
+        .nav-btn.active { background-color: var(--primary); color: white; }
+
         .layout-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 992px) { .layout-grid { grid-template-columns: 2.5fr 1.5fr; } }
 
         .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
         .card h2 { margin: 0 0 15px 0; font-size: 1.25rem; font-weight: 700; }
@@ -44,17 +48,7 @@
         .week-btn { background-color: var(--bg-card-inner); border: 1px solid var(--border); color: var(--text-sub); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
         .week-btn.active { border-color: var(--accent); color: var(--accent); }
 
-        .section-block { margin-bottom: 15px; }
-        .section-title { font-weight: bold; color: var(--primary); font-size: 1rem; margin-bottom: 5px; }
-        .workout-box { background-color: var(--bg-card-inner); border-radius: 12px; padding: 18px; border-left: 4px solid var(--primary); margin-top: 10px; }
-
-        /* Lemon 跑鞋專屬高質感標籤色 */
-        .shoe-tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin: 1px; }
-        .shoe-tag.interval { background-color: rgba(231, 76, 60, 0.15); color: #E74C3C; border: 1px solid rgba(231, 76, 60, 0.3); }
-        .shoe-tag.lsd { background-color: rgba(46, 204, 113, 0.15); color: #2ECC71; border: 1px solid rgba(46, 204, 113, 0.3); }
-        .shoe-tag.aero { background-color: rgba(52, 152, 219, 0.15); color: #3498DB; border: 1px solid rgba(52, 152, 219, 0.3); }
-        .shoe-tag.recovery { background-color: rgba(241, 196, 15, 0.15); color: #F1C40F; border: 1px solid rgba(241, 196, 15, 0.3); }
-        .shoe-tag.carbon { background-color: rgba(155, 89, 182, 0.15); color: #9B59B6; border: 1px solid rgba(155, 89, 182, 0.3); }
+        .shoe-tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin: 1px; background-color: rgba(255,255,255,0.1); color: #fff; border: 1px solid #555; }
 
         .table-style { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; margin-top: 5px; }
         .table-style th { color: var(--primary); padding: 10px 8px; border-bottom: 1px solid var(--border); background-color: var(--bg-card-inner); }
@@ -66,10 +60,22 @@
         .log-card h4 { margin: 0; font-size: 0.95rem; }
         .log-card p { margin: 4px 0 0 0; font-size: 0.75rem; color: var(--accent); }
 
-        .race-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 1px solid var(--primary); color: var(--primary); white-space: nowrap; }
-        .badge-fun { border-color: #555; color: var(--text-sub); }
-        .badge-b { border-color: #3498DB; color: #3498DB; }
+        /* 核心板塊可見度控制 */
+        .page-panel { display: none; }
+        .page-panel.active { display: block; }
+
+        /* 賽事卡片視覺樣式 */
+        .race-box-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
+        @media (min-width: 768px) { .race-box-grid { grid-template-columns: 1fr 1fr; } }
+        .race-detail-card { background-color: var(--bg-card-inner); border: 1px solid var(--border); border-radius: 12px; padding: 20px; border-top: 4px solid var(--primary); }
+        .race-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #2D2D35; padding-bottom: 10px; margin-bottom: 12px; }
+        .race-title { font-weight: bold; font-size: 1.1rem; color: var(--text-main); }
+        .race-date-text { font-size: 0.8rem; color: var(--text-sub); }
+        .race-badge-ui { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; background: rgba(255, 82, 0, 0.15); color: var(--primary); border: 1px solid var(--primary); }
+        .time-box-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #16161A; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .time-label { font-size: 0.75rem; color: var(--text-sub); }
+        .time-value { font-size: 1.1rem; font-weight: bold; color: var(--text-main); }
+        .time-value.actual { color: var(--accent); }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background-color: var(--bg-card); border: 1px solid var(--border); padding: 24px; border-radius: 16px; max-width: 550px; width: 90%; position: relative; }
@@ -80,21 +86,25 @@
 
 <div class="container">
     <header>
-        <h1>Lemon 2026 <span>馬拉松雲端數據指揮艙</span></h1>
-        <p>🔄 試算表實時連線 · 跑鞋陣容 100% 精確修正定錨版</p>
+        <h1>Lemon 2026 <span>馬拉松智慧雙中心控制艙</span></h1>
+        <p>🔄 三核心通道實時連線中 · 計畫 / 日誌 / 賽事對照全面自動化</p>
     </header>
 
     <div class="status-bar">
-        <div>總控狀態：<strong style="color:var(--accent)">雲端同步正常</strong></div>
+        <div>連線安全鎖：<strong style="color:var(--accent)">已解除 (HTTPS)</strong></div>
         <div>天賦極速步頻：<strong>190+ spm</strong></div>
-        <div>高足弓ITB防線：<strong>核心死守中</strong></div>
+        <div>高足弓防傷線：<strong>重訓日臀中肌死守</strong></div>
     </div>
 
-    <div class="layout-grid">
-        <main>
+    <div class="main-nav">
+        <button class="nav-btn active" id="nav-btn-core" onclick="switchMainPage('core')">📅 週期化計畫與日誌系統</button>
+        <button class="nav-btn" id="nav-btn-races" onclick="switchMainPage('races')">🏆 雲端賽事動態管理與時間對照</button>
+    </div>
+
+    <div id="page-panel-core" class="page-panel active">
+        <div class="layout-grid">
             <div class="card">
-                <h2>📅 核心週期化計畫展示系統</h2>
-                
+                <h2>📅 雲端週期化計畫展示系統</h2>
                 <div class="month-selector">
                     <button class="month-btn active" onclick="changeMonth('m6')">6 月</button>
                     <button class="month-btn" onclick="changeMonth('m7')">7 月</button>
@@ -103,35 +113,33 @@
                     <button class="month-btn" onclick="changeMonth('m10')">10 月</button>
                     <button class="month-btn" onclick="changeMonth('m11')">11 月</button>
                 </div>
-
                 <div class="sub-nav">
                     <button class="sub-btn active" id="btn-summary" onclick="changeView('summary')">每個月訓練大綱</button>
                     <button class="sub-btn" id="btn-detail" onclick="changeView('detail')">每週與每日課表細項</button>
                 </div>
-
-                <div id="month-display-box"></div>
-            </div>
-
-            <div class="card">
-                <h2>📊 雲端實時訓練日誌（自動從 Google Sheets 讀取）</h2>
-                <div class="log-grid" id="log-container">
-                    <p style="color:var(--text-sub)">正在讀取雲端試算表...</p>
+                <div id="month-display-box">
+                    <p style="color:var(--text-sub)">正在載入雲端計畫數據...</p>
                 </div>
             </div>
-        </main>
 
-        <aside>
             <div class="card">
-                <h2>🗺️ 2026 固定賽事與戰術定錨</h2>
-                <div class="race-row"><div><strong>09/19 - 09/20 西夸父</strong><br><small style="color: var(--text-sub);">純娛樂 / 長距離有氧耐力維持</small></div><span class="badge badge-fun">C 級娛樂</span></div>
-                <div class="race-row"><div><strong>10/31 華航馬拉松</strong><br><small style="color: var(--accent);">半馬目標 Sub 90 (配速 4'15")</small></div><span class="badge">A 級主戰</span></div>
-                <div class="race-row"><div><strong>11/01 NB 10KM</strong><br><small style="color: var(--text-sub);">排乳酸跑 / 嚴禁硬衝</small></div><span class="badge badge-fun">C 級恢復</span></div>
-                <div class="race-row"><div><strong>11/08 田中馬拉松</strong><br><small style="color: var(--accent);">初全馬目標 Sub 330 (配速 4'55")</small></div><span class="badge">A 級主戰</span></div>
-                <div class="race-row"><div><strong>11/15 鹿港 10KM</strong><br><small style="color: var(--text-sub);">初全馬後動態排毒恢復</small></div><span class="badge badge-fun">C 級恢復</span></div>
-                <div class="race-row"><div><strong>11/29 Garmin 半馬</strong><br><small style="color: var(--accent);">年度半馬大收割 Sub 90</small></div><span class="badge">A 級主戰</span></div>
-                <div class="race-row"><div><strong>12/13 日本富士山全馬</strong><br><small style="color: var(--text-sub);">跑旅全馬放鬆 (目標 Sub 350)</small></div><span class="badge badge-b">B 級戰略</span></div>
+                <h2>📊 雲端實時訓練日誌</h2>
+                <div class="log-grid" id="log-container">
+                    <p style="color:var(--text-sub)">正在讀取雲端日誌庫...</p>
+                </div>
             </div>
-        </aside>
+        </div>
+    </div>
+
+    <div id="page-panel-races" class="page-panel">
+        <div class="card">
+            <h2>🏆 2026年年度目標賽事進程與實際成績對照牆</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem; margin-top: -10px;">下方卡片完全與 Google Sheets 分頁『賽事藍圖與對照』實時連線。若您在 Sheets 內填入完賽時間，網頁會自動轉換為完成狀態。</p>
+            
+            <div class="race-box-grid" id="race-cloud-container">
+                <p style="color:var(--text-sub)">正在建立雲端賽事對照牆...</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -146,201 +154,175 @@
 <script>
     const SPREADSHEET_ID = "15uaZagqgbmw3pPNP86nv6ONkHPLw1SAai559kYnxVj0";
     const LOG_DATA_STORE = {};
-    let currentMonth = 'm6'; 
-    let currentView = 'summary';
-    let currentWeekTab = 'w1';
+    let CLOUD_PLAN_ROWS = []; 
+    let CLOUD_RACE_ROWS = []; // 存放第三分頁的賽事對照數據
+    let currentMonth = 'm6'; let currentView = 'summary'; let currentWeekTab = 'w1';
 
-    // 跑鞋矩陣與 W1-W4 課表依據「跑者訓練計畫與體檢分析」檔案 100% 精確修正定錨
-    const planDatabase = {
-        m6: {
-            summary: `<h3>【6月 · 夏季基礎建構期】</h3>
-                      <div class="section-block"><div class="section-title">🎯 月跑量目標</div><p>200 公里</p></div>
-                      <div class="section-block"><div class="section-title">🏃‍♂️ 訓練主軸</div><p>夏季有氧引擎大打底。週間速度刺激與神經激發，星期三強制Novablast 5動態調理，週末穩固長距離基礎有氧城牆。</p></div>
-                      <div class="section-block"><div class="section-title">🛡️ 防傷特化（高足弓/右膝）</div><p>死守高足弓防線！凡路跑硬地慢跑與 LSD 必須塞入高足弓鞋墊。週五重訓日著重下肢剛性，徹底執行右側臀中肌激活（側臥抬腿3組），解除右膝外側拉扯張力。</p></div>
-                      <div class="section-block"><div class="section-title">👟 跑鞋智慧調度</div><p>操場速度間歇：<span class="shoe-tag interval">adidas Adios 9</span> | 雨天/跑步機：<span class="shoe-tag interval">Kiprun Tempo</span> | 輕鬆有氧跑：<span class="shoe-tag aero">adidas Evo SL</span> | 恢復跑：<span class="shoe-tag recovery">ASICS Novablast 5</span> | 長距離 LSD：<span class="shoe-tag lsd">adidas Boston 13</span> / <span class="shoe-tag lsd">NB SC Trainer</span></p></div>`,
-            weeks: {
-                w1: `<tr><td>週一</td><td>全天休息</td><td>放鬆中樞神經系統</td><td>-</td></tr>
-                     <tr><td>週二</td><td>操場速度間歇跑：400m * 8趟<br><small style="color:var(--accent)">錶設定：配速 3'50"~4'00"/km，休 90秒</small></td><td>激發速度快肌神經流，發揮 190+ spm 高步頻優勢</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
-                     <tr><td>週三</td><td>常規輕鬆修復跑 6K<br><small style="color:var(--text-sub)">配速 5'40"~6'00"/km</small></td><td>動態排除乳酸，加速快肌纖維微損傷調理</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
-                     <tr><td>週四</td><td>週間常規有氧跑 10K<br><small style="color:var(--text-sub)">配速 5'20"~5'35"/km</small></td><td>有氧引擎築牆，穩健累積基礎跑量容積</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>
-                     <tr><td>週五</td><td>健身房重訓日</td><td>上半身擺臂剛性充血 ＋ 右側臀中肌死守菜單（側臥抬腿3組）</td><td>平底訓練鞋 / 赤足</td></tr>
-                     <tr><td>週六</td><td>核心滾筒放鬆</td><td>使用泡沫軸深層放鬆右側 ITB（髂脛束）與大腿外側</td><td>-</td></tr>
-                     <tr><td>週日</td><td>低心率長距離 LSD 21K<br><small style="color:var(--accent)">錶設定：平均心率嚴格 < 140 bpm</small></td><td>忘記配速 ($5'45'' \sim 6'10''$)，測試硬地抗疲勞性</td><td><span class="shoe-tag lsd">adidas Boston 13 (+鞋墊)</span></td></tr>`,
-                w2: `<tr><td>週一</td><td>全天休息</td><td>中樞神經深度修復</td><td>-</td></tr>
-                     <tr><td>週二</td><td>操場速度間歇跑：400m * 10趟<br><small style="color:var(--accent)">錶設定：配速 3'50"~4'00"/km，休 90秒</small></td><td>增加 2 趟負荷，測試後半程高心肺核心抗晃剛性</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
-                     <tr><td>週三</td><td>常規輕鬆修復跑 7K<br><small style="color:var(--text-sub)">慢速體感調理</small></td><td>動態循環代謝，深度舒緩雙腿緊繃感</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
-                     <tr><td>週四</td><td>週間常規有氧跑 10K<br><small style="color:var(--text-sub)">配速 5'20"~5'35"/km</small></td><td>有氧打底，保持高步頻軌跡，落地即彈保護足底</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>
-                     <tr><td>週五</td><td>健身房重訓日</td><td>加強右側臀中肌剛性（側臥抬腿3組）與上半身充血訓練</td><td>平底訓練鞋</td></tr>
-                     <tr><td>週六</td><td>關節物理舒緩</td><td>針對高足弓足底筋膜與小腿進行動態伸展</td><td>-</td></tr>
-                     <tr><td>週日</td><td>低心率長距離 LSD 22K<br><small style="color:var(--accent)">錶設定：平均心率死守 140 bpm 以下</small></td><td>硬地大里程轟炸，實測中底與高足弓鞋墊抗疲勞性</td><td><span class="shoe-tag lsd">NB SC Trainer (+鞋墊)</span></td></tr>`,
-                w3: `<tr><td>週一</td><td>全天休息</td><td>快肌神經與肌肉纖維再生</td><td>-</td></tr>
-                     <tr><td>週二</td><td>操場速度間歇跑：400m * 10趟<br><small style="color:var(--accent)">錶設定：配速微調收緊至 3'50"~3'55"/km，休 90秒</small></td><td>強度略微增加，逼出速度快肌引擎極限興奮度</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
-                     <tr><td>週三</td><td>常規輕鬆修復跑 6K<br><small style="color:var(--text-sub)">降速控心率跑</small></td><td>極低強度有氧恢復，監控右膝外側體感</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
-                     <tr><td>週四</td><td>週間常規有氧跑 12K<br><small style="color:var(--text-sub)">配速 5'15"~5'30"/km</small></td><td>里程上推，專注中後段體感無痛反饋與擺臂對稱</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>
-                     <tr><td>週五</td><td>健身房重訓日</td><td>死守右臀穩定度，配合核心剛性擺臂訓練</td><td>平底訓練鞋</td></tr>
-                     <tr><td>週六</td><td>物理按摩放鬆</td><td>深層調理大腿外側、髂脛束與足底蹠膜</td><td>-</td></tr>
-                     <tr><td>週日</td><td>低心率長距離 LSD 24K<br><small style="color:var(--accent)">錶設定：心率死守 140 bpm，本月里程最高峰</small></td><td>長距離大築牆，建構馬拉松油箱終極容量</td><td><span class="shoe-tag lsd">adidas Boston 13 (+鞋墊)</span></td></tr>`,
-                w4: `<tr><td>週一</td><td>全天休息</td><td>月度週期精準減量調養期</td><td>-</td></tr>
-                     <tr><td>週二</td><td>操場速度間歇跑：400m * 6趟<br><small style="color:var(--accent)">錶設定：維持 3'50" 配速，組數大砍半</small></td><td>精準減量！維持頂級速度刺激，但大幅砍掉里程負荷</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr>
-                     <tr><td>週三</td><td>常規輕鬆修復跑 5K<br><small style="color:var(--text-sub)">5'50"~6'10" 極慢速</small></td><td>排毒、減壓，最大化消除身體疲勞與微損傷</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr>
-                     <tr><td>週四</td><td>常規有氧跑 8K<br><small style="color:var(--text-sub)">配速 5'30"/km 輕鬆巡航</small></td><td>維持動態有氧代謝循環，儲備隔週拉量體力</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>
-                     <tr><td>週五</td><td>健身房關節激活</td><td>不加重量！純動作激活右側臀中肌，維持快肌張力</td><td>-</td></tr>
-                     <tr><td>週六</td><td>徹底休息日</td><td>全天靜養，進行碳水化合物密集儲備</td><td>-</td></tr>
-                     <tr><td>週日</td><td>有氧定速跑 12K<br><small style="color:var(--accent)">配速：5'00"/km 定速巡航</small></td><td>減量週週末調整，模擬半馬專項配速前期放鬆體感</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`
-            }
-        },
-        m7: {
-            summary: `<h3>【7月 · 夏季耐熱築牆期】</h3>
-                      <div class="section-block"><div class="section-title">🎯 月跑量目標</div><p>210 - 220 公里</p></div>
-                      <div class="section-block"><div class="section-title">🏃‍♂️ 訓練主軸</div><p>盛夏高溫耐熱環境適應。核心心率鎖死在 140 bpm 以下，注重呼吸調節與高步頻巡航慣性，不在高溫下盲目衝配速。</p></div>`,
-            weeks: {
-                w1: `<tr><td>週二</td><td>操場短間歇跑</td><td>速度快肌刺激</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 6K</td><td>動態調理排乳酸</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>長距離 LSD 22K</td><td>心率 < 140 有氧築牆</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w2: `<tr><td>週二</td><td>操場短間歇跑</td><td>速度快肌刺激</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>動態調理排乳酸</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>長距離 LSD 23K</td><td>心率 < 140 有氧築牆</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
-                w3: `<tr><td>週二</td><td>操場短間歇跑</td><td>速度快肌刺激</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>動態調理排乳酸</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>長距離 LSD 24K</td><td>耐力頂峰轟炸</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w4: `<tr><td>週二</td><td>減量短間歇 (組數減半)</td><td>保持快肌張力</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>恢復跑 5K</td><td>中樞修復減壓</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末有氧慢跑 12K</td><td>定速輕鬆巡航</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`
-            }
-        },
-        m8: {
-            summary: `<h3>【8月 · 專項強度切換與高峰準備】</h3>
-                      <div class="section-block"><div class="section-title">🎯 月跑量目標</div><p>230 - 250 公里 (年度最高峰)</p></div>
-                      <div class="section-block"><div class="section-title">🏃‍♂️ 訓練主軸</div><p>進入半馬專項強度切換。週間加重乳酸閾值（Tempo 節奏跑）比例，配速定錨在 $4'30'' \sim 4'35''/km$，提升身體抗乳酸能力。</p></div>`,
-            weeks: {
-                w1: `<tr><td>週二</td><td>操場長間歇 1000m * 5</td><td>開發速度耐受力</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週四</td><td>專項閾值節奏跑 12K</td><td>配速 4'30"~4'35"</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週日</td><td>長距離 LSD 24K</td><td>後段提速模擬跑</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w2: `<tr><td>週二</td><td>操場長間歇 1000m * 6</td><td>開發速度耐受力</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 7K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週外</td><td>專項閾值節奏跑 12K</td><td>配速 4'30"~4'35"</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週日</td><td>長距離 LSD 25K</td><td>硬地抗疲勞大累積</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
-                w3: `<tr><td>週二</td><td>操場長間歇 1000m * 6</td><td>快肌神經極限開發</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>修復跑 8K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週四</td><td>專項閾值節奏跑 14K</td><td>拉長閾值防線</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週日</td><td>長距離 LSD 26K</td><td>頂峰有氧大築牆</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w4: `<tr><td>週二</td><td>精準減量間歇</td><td>組數大砍半</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>恢復跑 5K</td><td>中樞最大化舒緩</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末有氧巡航 10K</td><td>動態調整調節</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`
-            }
-        },
-        m9: {
-            summary: `<h3>【9月 · 速度耐力高峰與賽事測試】</h3>
-                      <p><strong>核心主軸：</strong> 09/19 西夸父長距離實測。全面內化半馬 $4'15''$ 目標配速專項體感，磨合擺臂對稱性與右膝外側耐受度。</p>`,
-            weeks: {
-                w1: `<tr><td>週二</td><td>賽前配速間歇跑</td><td>速度張力死守</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 7K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>09/19</td><td><b>西夸父正賽日</b></td><td>長距離實測 / 禁盲衝硬衝</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`,
-                w2: `<tr><td>週二</td><td>常規恢復有氧</td><td>賽後小腿動態代謝跑</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>穩健有氧跑 16K</td><td>耐力容積拉回</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w3: `<tr><td>週二</td><td>操場目標配速跑</td><td>精準模擬 4'15" 配速巡航</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 7K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>高峰長跑 22K</td><td>後半程專項定額提速</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
-                w4: `<tr><td>週二</td><td>減量有氧慢跑</td><td>精準控制體感</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 5K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>賽前倒數調整 12K</td><td>準備迎接 10 月華航顛峰</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`
-            }
-        },
-        m10: {
-            summary: `<h3>【10月 · 賽前精準減量期】</h3>
-                      <p><strong>核心主軸：</strong> 月跑量大砍 30%-40%（標定 150km），核心防線轉移為最大化消除疲勞、維持神經張力。迎戰 10/31 華航半馬（Sub 90 終極PB戰場）。</p>`,
-            weeks: {
-                w1: `<tr><td>週二</td><td>目標配速跑 8K</td><td>死守 4'15" 精準巡航體感</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>有氧長跑 16K</td><td>精準減量正式啟動</td><td><span class="shoe-tag lsd">adidas Boston 13</span></td></tr>`,
-                w2: `<tr><td>週二</td><td>速度間歇 (組數大砍半)</td><td>純粹維持快肌纖維興奮度與張力</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>有氧調整跑 14K</td><td>減量進程平穩前進</td><td><span class="shoe-tag lsd">NB SC Trainer</span></td></tr>`,
-                w3: `<tr><td>週二</td><td>短距離刺激間歇</td><td>保持大腦速度中樞興奮狀態</td><td><span class="shoe-tag interval">adidas Adios 9</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 5K</td><td>常規週三修復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末倒數慢跑 10K</td><td>儲備核心體力，強化防傷</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`,
-                w4: `<tr><td>週二</td><td>賽前最後動態喚醒</td><td>純激活，絕不累積乳酸疲勞</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週三</td><td>極輕鬆慢跑 4K</td><td>最後鞋底落地路感核對</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>10/31</td><td><b>華航馬拉松正賽 (半馬破90)</b></td><td><b>終極戰役降臨！全掌爪型推進全面釋放</b></td><td><b><span class="shoe-tag carbon">adidas Adios Pro 4</span></b></td></tr>`
-            }
-        },
-        m11: {
-            summary: `<h3>【11月 · 魔鬼四連賽收割期】</h3>
-                      <p><strong>核心主軸：</strong> 魔鬼連賽抗壓！11/01 NB 10k ➔ 11/08 田中初全馬 (Sub 330) ➔ 11/15 鹿港 10k ➔ 11/29 Garmin 半馬。週間完全停跑速度間歇，死守深度睡眠與糖原密集密鋪。</p>`,
-            weeks: {
-                w1: `<tr><td>11/01</td><td><b>NB 10KM 賽事日</b></td><td>純娛樂動態排乳酸跑，控速嚴禁飆速</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週三</td><td>動態輕鬆慢跑 5K</td><td>常規週三修復調節</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>11/08</td><td><b>田中馬拉松 (初全馬 Sub 330)</b></td><td><b>首馬衝鋒！鎖死 4'55"~4'58" 巡航推進</b></td><td><b><span class="shoe-tag carbon">adidas Adios Pro 4</span> / <span class="shoe-tag carbon">飛電6 Elite</span></b></td></tr>`,
-                w2: `<tr><td>週三</td><td>排毒漫步慢跑 5K</td><td>全馬完賽後動態排乳酸，防止核心僵硬</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>11/15</td><td><b>鹿港 10KM 賽事日</b></td><td>全馬完賽後的動態恢復慢巡航</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`,
-                w3: `<tr><td>週二</td><td>輕鬆意念跑 6K</td><td>溫和喚醒快肌纖維肌肉張力</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr><tr><td>週三</td><td>輕鬆修復跑 6K</td><td>常規週三調節恢復</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>週日</td><td>週末有氧定速跑 10K</td><td>Garmin 賽前最後配速與步頻慣性核對</td><td><span class="shoe-tag aero">adidas Evo SL</span></td></tr>`,
-                w4: `<tr><td>週慢</td><td>賽前意念喚醒跑 4K</td><td>最大化儲備中樞爆發力，靜待鳴槍</td><td><span class="shoe-tag recovery">ASICS Novablast 5</span></td></tr><tr><td>11/29</td><td><b>Garmin 半馬 (終極 PB 收割戰)</b></td><td><b>年度收割戰降臨！破 90 分極速衝鋒</b></td><td><b><span class="shoe-tag carbon">adidas Adios Pro 4</span> / <span class="shoe-tag carbon">Puma Nitro Elite 3</span></b></td></tr>`
-            }
-        }
+    const staticAxiom = {
+        m6: `<h3>【6月 · 夏季基礎建構期】</h3><p><b>訓練主軸：</b>開發有氧油箱容量，低心率慢跑築牆。週間執行神經流速度刺激。</p><p><b>防傷死守：</b>高足弓凡在硬地慢跑強制配置鞋墊，週五加強右側臀中肌激活（側臥抬腿3組）以保護右膝ITB。</p>`,
+        m7: `<h3>【7月 · 耐熱築牆期】</h3><p><b>訓練主軸：</b>盛夏高溫耐熱適應。核心心率鎖死在 140 bpm 以下，專注呼吸調節與高步頻慣性。</p>`,
+        m8: `<h3>【8月 · 強度切換期】</h3><p><b>訓練主軸：</b>半馬專項配速切換。週間加重乳酸閾值跑（Tempo跑）比例，配速定錨在 4'30"~4'35"，拉高抗疲勞剛性。</p>`,
+        m9: `<h3>【9月 · 速度耐力高峰期】</h3><p><b>訓練主軸：</b>09/19 西夸父長距離實測。全面內化半馬 4'15" 目標配速體感。</p>`,
+        m10: `<h3>【10月 · 賽前精準減量期】</h3><p><b>訓練主軸：</b>月跑量大砍 30%-40% 消除疲勞，維持快肌神經張力。迎戰 10/31 華航半馬（Sub 90）。</p>`,
+        m11: `<h3>【11月 · 魔鬼四連賽收割期】</h3><p><b>訓練主軸：</b>連賽抗壓！週間完全停跑間歇，專注深度睡眠與糖原密集密鋪，全力攻克田中初全馬與Garmin半馬。</p>`
     };
 
-    function render() {
-        const data = planDatabase[currentMonth];
-        const box = document.getElementById('month-display-box');
-        if (currentView === 'summary') {
-            box.innerHTML = data.summary;
-        } else {
-            let weekSelectorHtml = `
-                <div class="week-selector">
-                    <button class="week-btn ${currentWeekTab==='w1'?'active':''}" onclick="switchWeek('w1')">第一週菜單</button>
-                    <button class="week-btn ${currentWeekTab==='w2'?'active':''}" onclick="switchWeek('w2')">第二週菜單</button>
-                    <button class="week-btn ${currentWeekTab==='w3'?'active':''}" onclick="switchWeek('w3')">第三週菜單</button>
-                    <button class="week-btn ${currentWeekTab==='w4'?'active':''}" onclick="switchWeek('w4')">第四週菜單</button>
-                </div>
-                <table class="table-style">
-                    <thead>
-                        <tr><th style="width:12%">星期</th><th style="width:45%">精確課表內容與跑錶設定參數</th><th style="width:23%">專項戰術備忘錄</th><th style="width:20%">指揮艙精準配對跑鞋</th></tr>
-                    </thead>
-                    <tbody>
-                        ${data.weeks[currentWeekTab] || '<tr><td colspan="4" style="color:var(--text-sub)">調整或賽事週，請依照當日賽事或雲端日誌指令執行。</td></tr>'}
-                    </tbody>
-                </table>
-            `;
-            box.innerHTML = weekSelectorHtml;
-        }
-    }
-
-    function changeMonth(mCode) { currentMonth = mCode; currentWeekTab = 'w1'; document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); render(); }
-    function changeView(vCode) { currentView = vCode; document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn-${vCode}`).classList.add('active'); render(); }
-    function switchWeek(wCode) { currentWeekTab = wCode; render(); }
-
-    // Google Sheets 自動化高效率讀取引擎
-    async function fetchCloudLogs() {
-        const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
+    // 啟動控制中心：發動三核心撈取 (日誌、預計課表、賽事對照)
+    async function startCommandCenter() {
+        const urlLog = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=0`;
+        const urlPlan = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=%E6%AF%8F%E9%80%B1%E9%A1%90%E8%A8%88%E8%AA%B2%E8%A1%A8`;
+        const urlRace = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=%E8%B3%BD%E4%BA%8B%E8%97%8D%E5%9C%96%E8%88%87%E5%B0%8D%E7%85%A7`;
+        
         try {
-            const response = await fetch(url);
-            const csvText = await response.text();
-            parseCSVData(csvText);
-        } catch (error) {
-            document.getElementById('log-container').innerHTML = "<p style='color:red'>雲端讀取異常，請確認 Sheets 權限是否公開檢視。</p>";
+            const resLog = await fetch(urlLog); const csvLog = await resLog.text(); parseCSVLog(csvLog);
+            const resPlan = await fetch(urlPlan); const csvPlan = await resPlan.text(); parseCSVPlan(csvPlan);
+            
+            // 撈取第三分頁賽事對照檔數據
+            const resRace = await fetch(urlRace); const csvRace = await resRace.text(); parseCSVRace(csvRace);
+            
+            render();
+            renderRaceWall();
+        } catch (e) {
+            document.getElementById('log-container').innerHTML = "<p style='color:red'>三軌同步失敗，請確認 Sheets 權限設定。</p>";
         }
     }
 
-    function parseCSVData(csvText) {
-        const rows = csvText.split(/\r?\n/).map(row => {
-            return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
-        });
+    function parseCSVPlan(csvText) { CLOUD_PLAN_ROWS = csvText.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim())); }
+    
+    // 解析第三分頁
+    function parseCSVRace(csvText) {
+        CLOUD_RACE_ROWS = csvText.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim()));
+    }
+
+    // 渲染全新大板塊：賽事對照牆 UI
+    function renderRaceWall() {
+        const container = document.getElementById('race-cloud-container');
+        container.innerHTML = "";
+
+        if (CLOUD_RACE_ROWS.length <= 1) {
+            container.innerHTML = "<p style='color:var(--text-sub)'>目前雲端無賽事數據，請在 Excel 的『賽事藍圖與對照』分頁中輸入。</p>";
+            return;
+        }
+
+        for (let i = 1; i < CLOUD_RACE_ROWS.length; i++) {
+            const col = CLOUD_RACE_ROWS[i];
+            if (!col[0]) continue;
+
+            const rDate = col[0];
+            const rName = col[1];
+            const rLevel = col[2] || "C級娛樂";
+            const rTarget = col[3] || "--";
+            const rActual = col[4] || "";
+            const rFeedback = col[5] || "尚未開賽";
+
+            let statusUi = rActual ? `<span style="color:var(--accent); font-weight:bold;">已完賽 ✓</span>` : `<span style="color:var(--primary); font-weight:bold;">備戰中 🏃‍♂️</span>`;
+            let actualDisplay = rActual ? rActual : "等待填入...";
+
+            container.innerHTML += `
+                <div class="race-detail-card">
+                    <div class="race-header">
+                        <div>
+                            <div class="race-title">${rName}</div>
+                            <div class="race-date-text">📅 賽事日期：${rDate}</div>
+                        </div>
+                        <span class="race-badge-ui">${rLevel}</span>
+                    </div>
+                    <div class="time-box-grid">
+                        <div>
+                            <div class="time-label">⏱ 目標設定時間</div>
+                            <div class="time-value">${rTarget}</div>
+                        </div>
+                        <div>
+                            <div class="time-label">🏁 實際完賽時間</div>
+                            <div class="time-value actual">${actualDisplay}</div>
+                        </div>
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-sub); background:var(--bg-card); padding:8px; border-radius:6px;">
+                        📝 <b>狀態：</b>${statusUi}<br>
+                        💬 <b>戰術反饋：</b>${rFeedback}
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // 原本計畫頁面的 W1-W4 動態組裝引擎
+    function render() {
+        const box = document.getElementById('month-display-box');
+        if (currentView === 'summary') { box.innerHTML = staticAxiom[currentMonth] || "<h3>計畫建構中</h3>"; return; }
+
+        let html = `
+            <div class="week-selector">
+                <button class="week-btn ${currentWeekTab==='w1'?'active':''}" onclick="switchWeek('w1')">第一週菜單</button>
+                <button class="week-btn ${currentWeekTab==='w2'?'active':''}" onclick="switchWeek('w2')">第二週菜單</button>
+                <button class="week-btn ${currentWeekTab==='w3'?'active':''}" onclick="switchWeek('w3')">第三週菜單</button>
+                <button class="week-btn ${currentWeekTab==='w4'?'active':''}" onclick="switchWeek('w4')">第四週菜單</button>
+            </div>
+            <table class="table-style">
+                <thead>
+                    <tr><th style="width:12%">星期</th><th style="width:45%">精確課表內容與跑錶設定參數</th><th style="width:23%">專項戰術備忘錄</th><th style="width:20%">智慧配對跑鞋</th></tr>
+                </thead>
+                <tbody>
+        `;
+
+        let hasData = false;
+        for (let i = 1; i < CLOUD_PLAN_ROWS.length; i++) {
+            const col = CLOUD_PLAN_ROWS[i]; if (!col[0]) continue;
+            const week = col[0]; const day = col[1]; const text = col[2]; const memo = col[3]; const shoe = col[4]; const month = col[5];
+
+            if (month === currentMonth && week === currentWeekTab) {
+                hasData = true;
+                html += `<tr><td style="font-weight:bold">${day}</td><td>${text}</td><td><small style="color:var(--text-sub)">${memo}</small></td><td><span class="shoe-tag">${shoe}</span></td></tr>`;
+            }
+        }
+        if (!hasData) { html += `<tr><td colspan="4" style="color:var(--text-sub); text-align:center; padding:20px;">教練正在雲端試算表為您調校此週計畫，請稍候或至 Sheets 輸入。</td></tr>`; }
+        html += `</tbody></table>`; box.innerHTML = html;
+    }
+
+    // 大版塊切換
+    function switchMainPage(pageId) {
+        document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(`page-panel-${pageId}`).classList.add('active');
+        document.getElementById(`nav-btn-${pageId}`).classList.add('active');
+    }
+
+    // 原本解析日誌部分
+    function parseCSVLog(csvText) {
+        const rows = csvText.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim()));
         const container = document.getElementById('log-container'); container.innerHTML = ""; 
 
         for (let i = 1; i < rows.length; i++) {
             const col = rows[i]; if (!col[0] || col[0].includes("日期")) continue; 
-
-            const logKey = `log_${i}`; const date = col[0]; const menu = col[1] || "輕鬆跑"; const km = col[2] || "0";
-            const pace = col[3] || "--"; const cadence = col[4] || "--"; const hr = col[5] || "--";
-            const shoe = col[6] || "未指定"; const arch = col[7] || "否"; const knee = col[8] || "0";
-            const feeling = col[9] || "無異常"; const remark = col[10] || "";
+            const logKey = `log_${i}`; const date = col[0]; const menu = col[1]; const km = col[2];
+            const pace = col[3]; const cadence = col[4]; const hr = col[5]; const shoe = col[6]; 
+            const arch = col[7]; const knee = col[8]; const feeling = col[9]; const remark = col[10] || "";
 
             let kneeColor = parseInt(knee) >= 1 ? "#FF5200" : "var(--accent)";
             let coachComment = parseInt(knee) >= 1 ? 
-                `🚨 <strong>防傷警報！</strong>此役右膝反應來到 ${knee} 級。典型高足弓因疲勞重心外偏，拉扯到外側 ITB 防線。週五重訓日絕對要死守右側臀中肌激活（側臥抬腿3組），用臀部肌群穩定度來拯救膝蓋！` : 
+                `🚨 <strong>防傷警報！</strong>此役右膝反應來到 ${knee} 級。高足弓因 Fatigue 重心外偏，拉扯到外側 ITB 防線。週五重訓日絕對要死守右側臀中肌激活（側臥抬腿3組），用部穩定度拯救膝蓋！` : 
                 `👍 體感反饋良好。高足弓防線死守成功。190+ 精英高步頻天賦發揮了極佳的落地衝擊卸載作用，繼續穩健維持夏季築牆品質。`;
 
             LOG_DATA_STORE[logKey] = {
-                title: `📊 ${date} - ${menu} 雲端實時日誌`,
-                body: `<strong>🏃 跑錶實測核心數據：</strong><br>
-                       • 訓練里程：${km} km | 平均配速：${pace} /km<br>
-                       • 平均步頻：${cadence} spm | 平均心率：${hr} bpm<br><br>
-                       <strong>👟 戰術裝備與足底防線：</strong><br>
-                       • 實戰跑鞋：${shoe} | 配置高足弓專用鞋墊：${arch}<br>
-                       • 右膝反應等級：<span style="color:${kneeColor}; font-weight:bold;">${knee} 級</span><br><br>
-                       <strong>📝 Lemon 真實體感描述：</strong><br>
-                       "${feeling}"<br><small style='color:var(--text-sub)'>備註：${remark}</small><br><br>
-                       <strong>💡 指揮艙動態數據診斷：</strong><br>
-                       ${coachComment}`
+                title: `📊 ${date} - ${menu} 雲端連線日誌`,
+                body: `<strong>🏃 跑錶實測核心數據：</strong><br>• 訓練里程：${km} km | 平均配速：${pace} /km<br>• 平均步頻：${cadence} spm | 平均心率：${hr} bpm<br><br><strong>裝備與足底防線：</strong><br>• 實戰跑鞋：${shoe} | 鞋墊：${arch}<br>• 右膝反應：<span style="color:${kneeColor}; font-weight:bold;">${knee} 級</span><br><br><strong>📝 跑者體感：</strong><br>"${feeling}"<br><br><strong>💡 動態智慧診斷：</strong><br>${coachComment}`
             };
 
             const borderStyle = parseInt(knee) >= 1 ? "border-color: var(--primary);" : "";
             const textColor = parseInt(knee) >= 1 ? "color: var(--primary);" : "";
-            container.innerHTML += `
-                <div class="log-card" style="${borderStyle}" onclick="openModal('${logKey}')">
-                    <h4>${date.substring(5)}</h4>
-                    <p style="${textColor}">${menu}</p>
-                </div>
-            `;
+            container.innerHTML += `<div class="log-card" style="${borderStyle}" onclick="openModal('${logKey}')"><h4>${date.substring(5)}</h4><p style="${textColor}">${menu}</p></div>`;
         }
     }
 
-    function openModal(logId) {
-        const data = LOG_DATA_STORE[logId];
-        if (data) {
-            document.getElementById('modalTitle').innerHTML = data.title;
-            document.getElementById('modalBody').innerHTML = data.body;
-            document.getElementById('logModal').style.display = 'flex';
-        }
-    }
+    function changeMonth(m) { currentMonth = m; currentWeekTab = 'w1'; document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); render(); }
+    function changeView(v) { currentView = v; document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn-${v}`).classList.add('active'); render(); }
+    function switchWeek(w) { currentWeekTab = w; render(); }
+    function openModal(id) { const d = LOG_DATA_STORE[id]; if (d) { document.getElementById('modalTitle').innerHTML = d.title; document.getElementById('modalBody').innerHTML = d.body; document.getElementById('logModal').style.display = 'flex'; } }
     function closeModal() { document.getElementById('logModal').style.display = 'none'; }
     window.onclick = function(e) { if (e.target == document.getElementById('logModal')) closeModal(); }
     
-    render(); fetchCloudLogs();
+    startCommandCenter();
 </script>
 </body>
 </html>
