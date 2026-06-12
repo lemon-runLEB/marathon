@@ -16,16 +16,21 @@
         .card { background: var(--card); padding: 25px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
         .strategy { border-left: 4px solid var(--primary); padding: 12px 20px; background: #1A1A1A; margin: 15px 0; color: #EEEEEE; border-radius: 0 8px 8px 0; font-size: 0.95rem; }
         .strategy h3 { margin-top: 0; color: var(--primary); font-size: 1rem; margin-bottom: 5px; }
-        .table-container { width: 100%; overflow-x: auto; margin-top: 15px; }
         
+        .table-container { width: 100%; overflow-x: auto; margin-top: 15px; }
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        th { font-size: 0.8rem; text-transform: uppercase; padding: 14px 12px; border-bottom: 2px solid #333; text-align: left; background: #16161A; }
+        th { font-size: 0.85rem; text-transform: uppercase; padding: 14px 12px; border-bottom: 2px solid #333; text-align: left; background: #16161A; }
         .th-expected { color: var(--primary); border-top: 2px solid var(--primary); }
         .th-actual { color: var(--actual); border-top: 2px solid var(--actual); background: #0A1A10; }
+        
         td { padding: 15px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: #E0E0E0; line-height: 1.6; vertical-align: top; white-space: pre-line; }
         tr:hover { background: #1A1A1A; transition: 0.2s; }
+        
+        /* 中間分隔線與小標籤設計 */
+        .divider-col { border-left: 2px solid #333 !important; }
         .tag-shoe { background:#222; padding:4px 8px; border-radius:4px; font-size:0.75rem; display: inline-block; margin-top: 6px; border: 1px solid #333; }
-        .tag-data { font-family: monospace; font-size: 0.95rem; color: #CCC; }
+        .tag-data { font-family: monospace; font-size: 0.95rem; color: #CCC; line-height: 1.8; }
+        .data-label { color: var(--sub); font-size: 0.8rem; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -72,8 +77,8 @@
 
         let planData = [];
         let logData = [];
-        let colKeys = {}; // 課表欄位
-        let logKeys = {}; // 日誌欄位
+        let colKeys = {}; 
+        let logKeys = {}; 
 
         function switchTab(id) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -87,7 +92,7 @@
             return text.trim().replace(/^"|"$/g, '').replace(/\n/g, '<br>');
         }
 
-        // 讀取日誌 (Logs)
+        // 讀取日誌，新增抓取「步頻」欄位
         Papa.parse(URLS.logs, { 
             download: true, header: true, skipEmptyLines: true,
             complete: res => {
@@ -102,6 +107,7 @@
                     logKeys.content = h.find(k => k.includes('實際執行'));
                     logKeys.pace = h.find(k => k.includes('配速'));
                     logKeys.hr = h.find(k => k.includes('心率'));
+                    logKeys.cadence = h.find(k => k.includes('步頻')); // 🌟 新增步頻掃描
                     logKeys.memo = h.find(k => k.includes('體感') || k.includes('備註'));
                 }
             } 
@@ -109,13 +115,11 @@
 
         Papa.parse(URLS.races, { download: true, header: true, complete: res => renderTable(res.data, 'races-content') });
 
-        // 讀取課表 (Plans)
         Papa.parse(URLS.plans, { 
             download: true, header: true, skipEmptyLines: true,
             complete: (res) => {
                 if (res.data.length === 0) return;
                 planData = res.data;
-                
                 let headers = Object.keys(planData[0]);
                 colKeys.month = headers.find(k => k.includes('月')) || headers[5];
                 colKeys.week = headers.find(k => k.includes('週')) || headers[0];
@@ -125,8 +129,7 @@
                 colKeys.shoe = headers.find(k => k.includes('鞋')) || headers[4];
 
                 let months = ["6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-                document.getElementById('month-nav').innerHTML = months.map(m => 
-                    `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
+                document.getElementById('month-nav').innerHTML = months.map(m => `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
             }
         });
 
@@ -158,30 +161,27 @@
                 btn.classList.add('active');
             }
             
-            // 抓出該週的「預計課表」
             let filteredPlan = planData.filter(r => {
                 let cellMonth = String(r[colKeys.month] || '').replace(/\s+/g, '');
                 let cellWeek = String(r[colKeys.week] || '').trim();
                 return (cellMonth === m || cellMonth === m.replace('月', '')) && cellWeek === w;
             });
             
-            // 表頭設計（左邊預計，右邊真實）
+            // ⚖️ 寬度完美平衡：左半 50% (8% + 42%) / 右半 50% (24% + 12% + 14%)
             let html = `<table>
                 <thead>
                     <tr>
-                        <th class="th-expected" style="width: 80px;">星期</th>
-                        <th class="th-expected" style="width: 25%;">🎯 預計課表與戰術</th>
-                        <th class="th-actual" style="width: 30%;">✅ 實際執行紀錄</th>
-                        <th class="th-actual" style="width: 15%;">📊 實際數據</th>
-                        <th class="th-actual">📝 實際體感</th>
+                        <th class="th-expected" style="width: 8%;">星期</th>
+                        <th class="th-expected" style="width: 42%;">🎯 預計目標 (課表/戰術/鞋)</th>
+                        <th class="th-actual divider-col" style="width: 24%;">✅ 實際執行</th>
+                        <th class="th-actual" style="width: 12%;">📊 數據</th>
+                        <th class="th-actual" style="width: 14%;">📝 體感</th>
                     </tr>
                 </thead>
                 <tbody>`;
 
             filteredPlan.forEach(p => {
                 let pDay = String(p[colKeys.day]).trim();
-                
-                // 💡 神奇魔法：去 logData (日誌) 裡面找「同月份、同週次、同星期」的那一筆資料
                 let actualLog = logData.find(l => {
                     if(!l[logKeys.month] || !l[logKeys.week] || !l[logKeys.day]) return false;
                     let lM = String(l[logKeys.month]).replace(/\s+/g, '');
@@ -190,15 +190,23 @@
                     return (lM === m || lM === m.replace('月', '')) && lW === w && lD === pDay;
                 });
 
-                // 設定真實數據的顯示內容（如果有找到資料就顯示綠色，沒找到就顯示灰色未執行）
+                // 資料抓取與排版 (新增步頻 actCadence)
                 let actDate = (actualLog && actualLog[logKeys.date]) ? `<br><span style="font-size:0.75rem; color:var(--sub)">${actualLog[logKeys.date]}</span>` : '';
                 let actContent = actualLog ? `<span style="color:var(--actual); font-weight:bold;">${formatCellText(actualLog[logKeys.content])}</span>` : '<span style="color:#444;">尚未執行</span>';
+                
                 let actPace = actualLog && actualLog[logKeys.pace] ? actualLog[logKeys.pace] : '-';
                 let actHR = actualLog && actualLog[logKeys.hr] ? actualLog[logKeys.hr] : '-';
-                let dataStr = actualLog ? `<span class="tag-data">配速: ${actPace}<br>心率: ${actHR}</span>` : '<span style="color:#444;">-</span>';
+                let actCadence = actualLog && actualLog[logKeys.cadence] ? actualLog[logKeys.cadence] : '-'; // 抓取步頻
+                
+                // 數據區塊排版
+                let dataStr = actualLog ? 
+                    `<div class="tag-data"><span class="data-label">配速:</span>${actPace}<br>
+                     <span class="data-label">心率:</span>${actHR}<br>
+                     <span class="data-label">步頻:</span><span style="color:#00E676">${actCadence}</span></div>` 
+                    : '<span style="color:#444;">-</span>';
+                
                 let actMemo = actualLog ? formatCellText(actualLog[logKeys.memo]) : '<span style="color:#444;">-</span>';
 
-                // 產出雙軌對照的 HTML 結構
                 html += `<tr>
                     <td style="font-weight:bold; color:var(--primary);">${formatCellText(p[colKeys.day])}${actDate}</td>
                     <td>
@@ -206,7 +214,7 @@
                         <div style="color:var(--sub); font-size:0.85rem;">💡 ${formatCellText(p[colKeys.memo])}</div>
                         <div class="tag-shoe">👟 ${formatCellText(p[colKeys.shoe]) || '-'}</div>
                     </td>
-                    <td style="background: rgba(0, 230, 118, 0.03); border-left: 1px solid #333;">${actContent}</td>
+                    <td class="divider-col" style="background: rgba(0, 230, 118, 0.03);">${actContent}</td>
                     <td style="background: rgba(0, 230, 118, 0.03);">${dataStr}</td>
                     <td style="background: rgba(0, 230, 118, 0.03); font-size:0.85rem;">${actMemo}</td>
                 </tr>`;
@@ -216,10 +224,7 @@
         }
 
         function renderTable(data, id) {
-            if(!data || data.length === 0) {
-                document.getElementById(id).innerHTML = "暫無數據";
-                return;
-            }
+            if(!data || data.length === 0) { document.getElementById(id).innerHTML = "暫無數據"; return; }
             let html = '<table><thead><tr>';
             Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
             html += '</tr></thead><tbody>';
