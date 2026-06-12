@@ -5,102 +5,201 @@
     <title>Lemon Marathon Command</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { --bg: #050505; --card: #121212; --primary: #FF4500; --text: #FFFFFF; --sub: #A0A0A0; --border: #222222; }
+        :root { 
+            --bg: #050505; --card: #121212; --primary: #FF4500; 
+            --text: #FFFFFF; --sub: #A0A0A0; --border: #222222; 
+        }
         body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding: 20px; }
-        .nav { display: flex; gap: 10px; margin-bottom: 30px; }
-        .btn { background: #1C1C1C; color: var(--sub); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        
+        /* 主要分頁導航 */
+        .nav { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; }
+        .btn { background: #1C1C1C; color: var(--sub); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; }
         .btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        /* 月份與週次次級導航 */
+        .sub-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; padding: 10px; background: #0D0D0D; border-radius: 8px; border: 1px solid #1A1A1A; }
+        
         .panel { display: none; }
         .panel.active { display: block; }
         .card { background: var(--card); padding: 25px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .strategy { border-left: 4px solid var(--primary); padding: 10px 20px; background: #1A1A1A; margin-bottom: 20px; color: var(--sub); font-style: italic; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { color: var(--primary); font-size: 0.75rem; text-transform: uppercase; padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
-        td { padding: 15px 12px; border-bottom: 1px solid var(--border); }
+        
+        /* 戰略目標區 */
+        .strategy { border-left: 4px solid var(--primary); padding: 12px 20px; background: #1A1A1A; margin: 15px 0; color: #EEEEEE; border-radius: 0 8px 8px 0; font-size: 0.95rem; }
+        .strategy h3 { margin-top: 0; color: var(--primary); font-size: 1rem; margin-bottom: 5px; }
+        
+        /* 數據表格美化 */
+        .table-container { width: 100%; overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { color: var(--primary); font-size: 0.8rem; text-transform: uppercase; padding: 14px 12px; border-bottom: 2px solid #333; text-align: left; background: #16161A; }
+        td { padding: 14px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: #E0E0E0; }
+        tr:hover { background: #1A1A1A; transition: 0.2s; }
     </style>
 </head>
 <body>
-    <h1>Lemon | 2026 Marathon Command</h1>
+    <header><h1 style="font-size: 1.6rem; margin-bottom: 25px; letter-spacing: -0.5px;">Lemon | 2026 Marathon Command</h1></header>
+
     <div class="nav">
-        <button id="btn-logs" class="btn active" onclick="switchTab('logs')">訓練日誌</button>
-        <button id="btn-plans" class="btn" onclick="switchTab('plans')">週期課表</button>
-        <button id="btn-races" class="btn" onclick="switchTab('races')">賽事對照</button>
+        <button id="btn-logs" class="btn active" onclick="switchTab('logs')">真實訓練日誌</button>
+        <button id="btn-plans" class="btn" onclick="switchTab('plans')">週期化預計課表</button>
+        <button id="btn-races" class="btn" onclick="switchTab('races')">賽事藍圖對照</button>
     </div>
 
-    <div id="logs" class="panel active"><div class="card"><h2>訓練日誌</h2><div id="logs-content">數據同步中...</div></div></div>
+    <div id="logs" class="panel active">
+        <div class="card">
+            <h2>真實訓練日誌</h2>
+            <div id="logs-content" class="table-container">數據同步中...</div>
+        </div>
+    </div>
     
     <div id="plans" class="panel">
         <div class="card">
             <h2>📅 週期化課表探索</h2>
-            <div id="month-nav" class="nav"></div>
-            <div id="strategy-box" class="strategy">請選擇月份以載入戰術大綱...</div>
-            <div id="week-nav" class="nav"></div>
-            <div id="plans-content"></div>
+            
+            <p style="color: var(--sub); font-size: 0.85rem; margin-bottom: 5px;">第一步：選擇訓練月份</p>
+            <div id="month-nav" class="sub-nav"></div>
+            
+            <div id="strategy-box" class="strategy">
+                <h3>訓練戰略大綱</h3>
+                <p style="margin: 0; color: var(--sub);">請先點選上方月份查看該月核心戰術目標...</p>
+            </div>
+            
+            <p style="color: var(--sub); font-size: 0.85rem; margin-bottom: 5px;">第二步：選擇週次 (w1 - w5)</p>
+            <div id="week-nav" class="sub-nav">請先點選月份，系統將自動生成對應週次...</div>
+            
+            <div id="plans-content" class="table-container"></div>
         </div>
     </div>
 
-    <div id="races" class="panel"><div class="card"><h2>賽事藍圖對照</h2><div id="races-content">數據同步中...</div></div></div>
+    <div id="races" class="panel">
+        <div class="card">
+            <h2>賽事藍圖對照</h2>
+            <div id="races-content" class="table-container">賽事藍圖載入中...</div>
+        </div>
+    </div>
 
     <script>
+        // 鎖定三個雲端 CSV 通道連結
         const URLS = {
             logs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv",
             plans: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv",
             races: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=1066810723&single=true&output=csv"
         };
 
+        // 月份戰略說明
         const STRATEGY = {
-            "6月": "基礎建構期：開發有氧油箱。每週五執行右臀激活，死守足弓外偏防線。",
-            "7月": "耐熱築牆期：心率鎖死 140bpm 以下，專注步頻與呼吸節奏。",
-            "8月": "強度切換期：執行乳酸閾值跑，抗疲勞剛性提升。",
-            "9月": "速度高峰期：定錨 4'15\" 目標配速體感。",
-            "10月": "賽前減量期：大砍量、守張力，準備 10/31 華航半馬。",
-            "11月": "賽事收割期：魔鬼四連賽，糖原密鋪，全力衝刺。",
-            "12月": "賽後修復期：賽後完全拆彈，重建體能基底。"
+            "6月": "基礎建構期：開發有氧油箱。每週五執行右臀激活（側臥抬腿3組），死守足弓外偏防線，保護右膝 ITB 緊繃。",
+            "7月": "耐熱築牆期：適應高溫，心率死守在 140bpm 以下，專注步頻與呼吸調節慣性。",
+            "8月": "強度切換期：半馬專項強度切換，週間加重乳酸閾值跑（Tempo），配速定錨 4'30\"~4'35\"。",
+            "9月": "速度高峰期：內化半馬 4'15\" 目標配速體感，執行長距離（LSD）賽前模擬實測。",
+            "10月": "賽前減量期：賽前減量 30%-40%，消除肌肉疲勞，守住最大張力準備 10/31 華航半馬。",
+            "11月": "賽事收割期：魔鬼四連賽收割期！專注深度睡眠與糖原密鋪，全力衝擊田中初全馬與 Garmin 半馬破 PB。",
+            "12月": "賽後修復期：賽後完全拆彈，重建體能與受損肌肉基底。"
         };
 
         let planData = [];
 
         function switchTab(id) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav .btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.getElementById('btn-' + id).classList.add('active');
         }
 
-        // 初始化所有頁籤
+        // 初始化並同步所有資料源
         Object.keys(URLS).forEach(key => {
-            Papa.parse(URLS[key], { download: true, header: true, trimHeaders: true, complete: (res) => {
-                if(key === 'plans') { planData = res.data.filter(r => r['月份']); renderMonths(); }
-                else { renderTable(res.data, key + '-content'); }
-            }});
+            Papa.parse(URLS[key], { 
+                download: true, 
+                header: true, 
+                trimHeaders: true, 
+                skipEmptyLines: true,
+                complete: (res) => {
+                    if(key === 'plans') { 
+                        // 移除空資料行並儲存
+                        planData = res.data.filter(r => r['月份']); 
+                        renderMonths(); 
+                    } else { 
+                        renderTable(res.data, key + '-content'); 
+                    }
+                }
+            });
         });
 
         function renderMonths() {
             let months = ["6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-            document.getElementById('month-nav').innerHTML = months.map(m => `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
+            document.getElementById('month-nav').innerHTML = months.map(m => 
+                `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
         }
 
         function selectMonth(m, btn) {
             document.querySelectorAll('#month-nav .btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById('strategy-box').innerHTML = `<h3>戰略大綱：</h3><p>${STRATEGY[m] || "待規劃"}</p>`;
-            let weeks = [...new Set(planData.filter(r => r['月份'] === m).map(r => r['週期週數']))].filter(w => w);
-            document.getElementById('week-nav').innerHTML = weeks.map(w => `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join('');
+            
+            // 顯示當月大綱
+            document.getElementById('strategy-box').innerHTML = `<h3>📅 ${m} 訓練戰略大綱：</h3><p style="margin:0;">${STRATEGY[m] || "階段目標待教練填入..."}</p>`;
+            
+            // 強力模糊比對：移除空格後進行比對（解決 6月 vs 6 的型態衝突）
+            let matchedRows = planData.filter(r => {
+                let excelMonth = String(r['月份']).replace(/\s+/g, '');
+                return excelMonth === m || excelMonth === m.replace('月', '');
+            });
+
+            // 提取出所有不重複的週期週數
+            let weeks = [...new Set(matchedRows.map(r => String(r['週期週數']).trim()))].filter(w => w && w !== 'undefined');
+            
+            if (weeks.length === 0) {
+                document.getElementById('week-nav').innerHTML = "<span style='color:orange;'>⚠️ Excel 內目前尚未填入該月份的週次數據（顯示待更新）</span>";
+                document.getElementById('plans-content').innerHTML = "";
+            } else {
+                // 由小到大排序週次，並渲染成按鈕
+                weeks.sort();
+                document.getElementById('week-nav').innerHTML = weeks.map(w => 
+                    `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join('');
+                document.getElementById('plans-content').innerHTML = "<p style='color:var(--sub); text-align:center;'>請繼續點擊上方生成的週次按鈕查看精確每日課表</p>";
+            }
         }
 
         function renderPlan(m, w, btn) {
             document.querySelectorAll('#week-nav .btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            let filtered = planData.filter(r => r['月份'] === m && r['週期週數'] === w);
-            renderTable(filtered, 'plans-content');
+            
+            // 同樣使用安全過濾，精確撈出該月該週的每日列
+            let filtered = planData.filter(r => {
+                let excelMonth = String(r['月份']).replace(/\s+/g, '');
+                let excelWeek = String(r['週期週數']).trim();
+                return (excelMonth === m || excelMonth === m.replace('月', '')) && excelWeek === w;
+            });
+            
+            if(filtered.length === 0) {
+                document.getElementById('plans-content').innerHTML = "<p>資料待更新</p>";
+                return;
+            }
+
+            // 客製化渲染：只顯示對跑者最重要的精確欄位
+            let html = '<table><thead><tr><th>星期</th><th>精確課表內容與跑錶設定參數</th><th>專項戰術備忘錄</th><th>建議跑鞋代碼</th></tr></thead><tbody>';
+            filtered.forEach(r => {
+                html += `<tr>
+                    <td style="font-weight:bold; color:var(--primary);">${r['星期'] || ''}</td>
+                    <td>${r['精確課表內容與跑錶設定參數'] || ''}</td>
+                    <td style="color:var(--sub); font-size:0.85rem;">${r['專項戰術備忘錄'] || ''}</td>
+                    <td><span style="background:#222; padding:4px 8px; border-radius:4px; font-size:0.8rem;">👟 ${r['建議配對跑鞋代碼'] || '未指定'}</span></td>
+                </tr>`;
+            });
+            document.getElementById('plans-content').innerHTML = html + '</tbody></table>';
         }
 
         function renderTable(data, id) {
-            if(!data || data.length === 0) return;
+            if(!data || data.length === 0) {
+                document.getElementById(id).innerHTML = "暫無數據";
+                return;
+            }
             let html = '<table><thead><tr>';
             Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
             html += '</tr></thead><tbody>';
-            data.forEach(r => { html += '<tr>'; Object.values(r).forEach(v => html += `<td>${v}</td>`); html += '</tr>'; });
+            data.forEach(r => {
+                html += '<tr>';
+                Object.values(r).forEach(v => html += `<td>${v || ''}</td>`);
+                html += '</tr>';
+            });
             document.getElementById(id).innerHTML = html + '</tbody></table>';
         }
     </script>
