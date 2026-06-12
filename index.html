@@ -26,11 +26,16 @@
         td { padding: 15px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: #E0E0E0; line-height: 1.6; vertical-align: top; white-space: pre-line; }
         tr:hover { background: #1A1A1A; transition: 0.2s; }
         
-        /* 中間分隔線與小標籤設計 */
         .divider-col { border-left: 2px solid #333 !important; }
         .tag-shoe { background:#222; padding:4px 8px; border-radius:4px; font-size:0.75rem; display: inline-block; margin-top: 6px; border: 1px solid #333; }
         .tag-data { font-family: monospace; font-size: 0.95rem; color: #CCC; line-height: 1.8; }
-        .data-label { color: var(--sub); font-size: 0.8rem; margin-right: 5px; }
+        .data-label { color: var(--sub); font-size: 0.8rem; margin-right: 5px; display: inline-block; width: 35px; }
+        
+        /* 跑量加總儀表板 */
+        .summary-box { background: #1A1A1A; padding: 12px 20px; border-radius: 8px; border-left: 4px solid var(--actual); margin-bottom: 15px; display: inline-flex; align-items: center; gap: 15px; }
+        .summary-label { color: var(--sub); font-size: 0.95rem; font-weight: bold; }
+        .summary-value { color: var(--actual); font-size: 1.5rem; font-weight: bold; }
+        .summary-unit { font-size: 0.9rem; color: var(--sub); font-weight: normal; }
     </style>
 </head>
 <body>
@@ -92,7 +97,7 @@
             return text.trim().replace(/^"|"$/g, '').replace(/\n/g, '<br>');
         }
 
-        // 讀取日誌，新增抓取「步頻」欄位
+        // 讀取日誌，新增抓取「里程/距離」欄位
         Papa.parse(URLS.logs, { 
             download: true, header: true, skipEmptyLines: true,
             complete: res => {
@@ -104,10 +109,11 @@
                     logKeys.month = h.find(k => k.includes('月'));
                     logKeys.week = h.find(k => k.includes('週') && !k.includes('星'));
                     logKeys.day = h.find(k => k.includes('星'));
-                    logKeys.content = h.find(k => k.includes('實際執行'));
+                    logKeys.content = h.find(k => k.includes('實際執行') || k.includes('課表'));
+                    logKeys.distance = h.find(k => k.includes('里程') || k.includes('距離')); // 🌟 新增距離掃描
                     logKeys.pace = h.find(k => k.includes('配速'));
                     logKeys.hr = h.find(k => k.includes('心率'));
-                    logKeys.cadence = h.find(k => k.includes('步頻')); // 🌟 新增步頻掃描
+                    logKeys.cadence = h.find(k => k.includes('步頻'));
                     logKeys.memo = h.find(k => k.includes('體感') || k.includes('備註'));
                 }
             } 
@@ -167,15 +173,16 @@
                 return (cellMonth === m || cellMonth === m.replace('月', '')) && cellWeek === w;
             });
             
-            // ⚖️ 寬度完美平衡：左半 50% (8% + 42%) / 右半 50% (24% + 12% + 14%)
+            let weeklyTotalMileage = 0; // 用來加總當週跑量
+
             let html = `<table>
                 <thead>
                     <tr>
                         <th class="th-expected" style="width: 8%;">星期</th>
                         <th class="th-expected" style="width: 42%;">🎯 預計目標 (課表/戰術/鞋)</th>
                         <th class="th-actual divider-col" style="width: 24%;">✅ 實際執行</th>
-                        <th class="th-actual" style="width: 12%;">📊 數據</th>
-                        <th class="th-actual" style="width: 14%;">📝 體感</th>
+                        <th class="th-actual" style="width: 14%;">📊 實際數據</th>
+                        <th class="th-actual" style="width: 12%;">📝 體感</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -190,19 +197,31 @@
                     return (lM === m || lM === m.replace('月', '')) && lW === w && lD === pDay;
                 });
 
-                // 資料抓取與排版 (新增步頻 actCadence)
+                // 處理跑量加總 (自動把 "10km", "15.5公里" 轉成純數字加總)
+                if (actualLog && logKeys.distance && actualLog[logKeys.distance]) {
+                    let distValue = parseFloat(String(actualLog[logKeys.distance]).replace(/[^\d.]/g, ''));
+                    if (!isNaN(distValue)) {
+                        weeklyTotalMileage += distValue;
+                    }
+                }
+
                 let actDate = (actualLog && actualLog[logKeys.date]) ? `<br><span style="font-size:0.75rem; color:var(--sub)">${actualLog[logKeys.date]}</span>` : '';
                 let actContent = actualLog ? `<span style="color:var(--actual); font-weight:bold;">${formatCellText(actualLog[logKeys.content])}</span>` : '<span style="color:#444;">尚未執行</span>';
                 
+                // 抓取四大核心數據
+                let actDist = actualLog && actualLog[logKeys.distance] ? actualLog[logKeys.distance] : '-';
                 let actPace = actualLog && actualLog[logKeys.pace] ? actualLog[logKeys.pace] : '-';
                 let actHR = actualLog && actualLog[logKeys.hr] ? actualLog[logKeys.hr] : '-';
-                let actCadence = actualLog && actualLog[logKeys.cadence] ? actualLog[logKeys.cadence] : '-'; // 抓取步頻
+                let actCadence = actualLog && actualLog[logKeys.cadence] ? actualLog[logKeys.cadence] : '-';
                 
-                // 數據區塊排版
+                // 📊 全新擴充的數據區塊
                 let dataStr = actualLog ? 
-                    `<div class="tag-data"><span class="data-label">配速:</span>${actPace}<br>
-                     <span class="data-label">心率:</span>${actHR}<br>
-                     <span class="data-label">步頻:</span><span style="color:#00E676">${actCadence}</span></div>` 
+                    `<div class="tag-data">
+                        <span class="data-label">里程:</span><span style="color:#FFD700">${actDist}</span><br>
+                        <span class="data-label">配速:</span>${actPace}<br>
+                        <span class="data-label">心率:</span>${actHR}<br>
+                        <span class="data-label">步頻:</span><span style="color:var(--actual)">${actCadence}</span>
+                     </div>` 
                     : '<span style="color:#444;">-</span>';
                 
                 let actMemo = actualLog ? formatCellText(actualLog[logKeys.memo]) : '<span style="color:#444;">-</span>';
@@ -220,7 +239,15 @@
                 </tr>`;
             });
             
-            document.getElementById('plans-content').innerHTML = html + '</tbody></table>';
+            // 產出當週總跑量面板，與課表一起渲染
+            let summaryPanel = `
+                <div class="summary-box">
+                    <span class="summary-label">🏃‍♂️ 當週實際總里程</span>
+                    <span class="summary-value">${weeklyTotalMileage.toFixed(2)} <span class="summary-unit">km</span></span>
+                </div>
+            `;
+            
+            document.getElementById('plans-content').innerHTML = summaryPanel + html + '</tbody></table>';
         }
 
         function renderTable(data, id) {
