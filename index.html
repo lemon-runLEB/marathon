@@ -7,15 +7,15 @@
     <style>
         :root { --bg: #0B0B0C; --card: #16161A; --primary: #FF5200; --sub: #8E8E93; --text: #F5F5F7; }
         body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 20px; }
-        .nav { display: flex; gap: 10px; margin-bottom: 30px; }
-        .btn { background: #333; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; }
+        .nav { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
         .btn.active { background: var(--primary); }
         .panel { display: none; }
         .panel.active { display: block; }
-        .card { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #2C2C35; margin-bottom: 20px; }
-        .strategy { border-left: 4px solid var(--primary); padding-left: 15px; margin: 15px 0; color: var(--sub); }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #2C2C35; margin-bottom: 20px; }
+        .strategy { border-left: 4px solid var(--primary); padding-left: 15px; margin: 15px 0; color: var(--sub); font-style: italic; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { color: var(--primary); padding: 12px; border-bottom: 1px solid #333; text-align: left; }
+        th { color: var(--primary); padding: 12px; border-bottom: 2px solid #333; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #2C2C35; }
     </style>
 </head>
@@ -27,22 +27,21 @@
         <button id="btn-races" class="btn" onclick="switchTab('races')">賽事對照</button>
     </div>
 
-    <div id="logs" class="panel active"><div class="card"><h2>訓練日誌紀錄</h2><div id="logs-content">數據載入中...</div></div></div>
+    <div id="logs" class="panel active"><div class="card"><h2>訓練日誌</h2><div id="logs-content">載入中...</div></div></div>
     
     <div id="plans" class="panel">
         <div class="card">
             <h2>📅 週期化課表探索</h2>
-            <div id="month-nav"></div>
-            <div id="strategy-box" class="strategy">請選擇月份查看戰略...</div>
-            <div id="week-nav"></div>
+            <div id="month-nav" class="nav"></div>
+            <div id="strategy-box" class="strategy">請選擇月份...</div>
+            <div id="week-nav" class="nav"></div>
             <div id="plans-content"></div>
         </div>
     </div>
 
-    <div id="races" class="panel"><div class="card"><h2>賽事藍圖對照</h2><div id="races-content">數據載入中...</div></div></div>
+    <div id="races" class="panel"><div class="card"><h2>賽事藍圖</h2><div id="races-content">載入中...</div></div></div>
 
     <script>
-        // 🌟 請在這裡準確填入三個分頁的 CSV 發佈連結
         const URLS = {
             logs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv",
             plans: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv",
@@ -50,12 +49,12 @@
         };
 
         const STRATEGY = {
-            "6月": "基礎建構期：開發有氧油箱，每週五進行右側臀中肌激活，死守足弓外偏防線。",
-            "7月": "耐熱築牆期：適應高溫，心率控制在 140bpm 以內，保護右膝。",
-            "8月": "強度切換期：乳酸閾值跑，拉高抗疲勞剛性。",
-            "9月": "速度耐力高峰期：內化 4'15\" 目標配速，強化賽前模擬。",
-            "10月": "減量精準期：大砍量、守張力，準備 10/31 華航半馬。",
-            "11月": "賽事收割期：魔鬼四連賽，全力衝擊田中與 Garmin 賽事。",
+            "6月": "基礎建構期：開發有氧油箱。每週五執行右臀激活，死守足弓外偏防線。",
+            "7月": "耐熱築牆期：心率鎖死 140bpm 以下，專注步頻與呼吸節奏。",
+            "8月": "強度切換期：執行乳酸閾值跑，抗疲勞剛性提升。",
+            "9月": "速度高峰期：定錨 4'15\" 目標配速體感。",
+            "10月": "賽前減量期：大砍量、守張力，準備 10/31 華航半馬。",
+            "11月": "賽事收割期：魔鬼四連賽，糖原密鋪，全力衝刺。",
             "12月": "賽後修復期：賽後完全拆彈，重建體能基底。"
         };
 
@@ -68,7 +67,7 @@
             document.getElementById('btn-' + id).classList.add('active');
         }
 
-        // 讀取所有數據
+        // 讀取所有資料
         Object.keys(URLS).forEach(key => {
             Papa.parse(URLS[key], { download: true, header: true, complete: (res) => {
                 if(key === 'plans') { planData = res.data; renderMonths(); }
@@ -85,10 +84,12 @@
         function selectMonth(m, btn) {
             document.querySelectorAll('#month-nav .btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById('strategy-box').innerHTML = `<h3>戰略目標：</h3><p>${STRATEGY[m]}</p>`;
-            let weeks = [...new Set(planData.filter(r => r.月份 === m).map(r => r.週期週數))];
+            document.getElementById('strategy-box').innerHTML = `<h3>戰略大綱：</h3><p>${STRATEGY[m] || "待規劃"}</p>`;
+            // 這裡修正了讀取欄位，確保對應你的 "週期週數"
+            let weeks = [...new Set(planData.filter(r => r.月份 === m).map(r => r.週期週數))].filter(w => w);
             document.getElementById('week-nav').innerHTML = weeks.map(w => 
                 `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join('');
+            document.getElementById('plans-content').innerHTML = "";
         }
 
         function renderPlan(m, w, btn) {
@@ -99,13 +100,12 @@
         }
 
         function renderTable(data, id) {
+            if(data.length === 0) return;
             let html = '<table><thead><tr>';
-            if(data.length > 0) {
-                Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
-                html += '</tr></thead><tbody>';
-                data.forEach(r => { html += '<tr>'; Object.values(r).forEach(v => html += `<td>${v}</td>`); html += '</tr>'; });
-                document.getElementById(id).innerHTML = html + '</tbody></table>';
-            }
+            Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
+            html += '</tr></thead><tbody>';
+            data.forEach(r => { html += '<tr>'; Object.values(r).forEach(v => html += `<td>${v}</td>`); html += '</tr>'; });
+            document.getElementById(id).innerHTML = html + '</tbody></table>';
         }
     </script>
 </body>
