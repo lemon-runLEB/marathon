@@ -43,12 +43,9 @@
     <header><h1 style="font-size: 1.6rem; margin-bottom: 25px;">Lemon | 2026 Marathon Command</h1></header>
 
     <div class="nav">
-        <button id="btn-logs" class="btn" onclick="switchTab('logs')">真實訓練日誌總表</button>
         <button id="btn-plans" class="btn active" onclick="switchTab('plans')">🔄 預計與真實雙軌對照</button>
         <button id="btn-races" class="btn" onclick="switchTab('races')">賽事藍圖對照</button>
     </div>
-
-    <div id="logs" class="panel"><div class="card"><h2>真實訓練日誌</h2><div id="logs-content" class="table-container">載入中...</div></div></div>
     
     <div id="plans" class="panel active">
         <div class="card">
@@ -108,11 +105,11 @@
             return text.trim().replace(/^"|"$/g, '').replace(/\n/g, '<br>');
         }
 
+        // 後台默默讀取日誌，不渲染成獨立頁籤
         Papa.parse(URLS.logs, { 
             download: true, header: true, skipEmptyLines: true,
             complete: res => {
                 logData = res.data;
-                renderTable(res.data, 'logs-content');
                 if (logData.length > 0) {
                     let h = Object.keys(logData[0]);
                     logKeys.date = h.find(k => k.includes('日期'));
@@ -154,7 +151,6 @@
             btn.classList.add('active');
             document.getElementById('strategy-box').innerHTML = `<h3>📅 ${m} 訓練戰略大綱</h3><p style="margin:0; line-height: 1.6;">${STRATEGY[m] || "待規劃"}</p>`;
             
-            // 🌟 自動計算「當月累積總里程」
             let monthlyTotalMileage = 0;
             if (logKeys.distance) {
                 logData.forEach(l => {
@@ -167,7 +163,6 @@
                 });
             }
             
-            // 顯示月里程面板
             document.getElementById('month-summary-box').style.display = 'inline-flex';
             document.getElementById('month-mileage-val').innerHTML = `${monthlyTotalMileage.toFixed(2)} <span class="summary-unit">km</span>`;
 
@@ -200,7 +195,7 @@
                 return (cellMonth === m || cellMonth === m.replace('月', '')) && cellWeek === w;
             });
             
-            let weeklyTotalMileage = 0; // 用來加總當週跑量
+            let weeklyTotalMileage = 0;
 
             let html = `<table>
                 <thead>
@@ -241,10 +236,10 @@
                 
                 let dataStr = actualLog ? 
                     `<div class="tag-data">
-                        <span class="data-label">里程:</span><span style="color:#FFD700">${actDist}</span><br>
-                        <span class="data-label">配速:</span>${actPace}<br>
-                        <span class="data-label">心率:</span>${actHR}<br>
-                        <span class="data-label">步頻:</span><span style="color:var(--actual)">${actCadence}</span>
+                        <span class="data-label">當日里程:</span><span style="color:#FFD700">${actDist}</span><br>
+                        <span class="data-label">平均配速:</span>${actPace}<br>
+                        <span class="data-label">平均心率:</span>${actHR}<br>
+                        <span class="data-label">平均步頻:</span><span style="color:var(--actual)">${actCadence}</span>
                      </div>` 
                     : '<span style="color:#444;">-</span>';
                 
@@ -263,7 +258,6 @@
                 </tr>`;
             });
             
-            // 當週總跑量面板 (綠色)
             let summaryPanel = `
                 <div class="summary-box" style="border-left: 4px solid var(--actual);">
                     <span class="summary-label">🏃‍♂️ 當週實際總里程</span>
