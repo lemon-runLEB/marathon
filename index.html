@@ -5,7 +5,7 @@
     <title>Lemon Marathon Command</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { --bg: #050505; --card: #121212; --primary: #FF4500; --text: #FFFFFF; --sub: #A0A0A0; --border: #222222; }
+        :root { --bg: #050505; --card: #121212; --primary: #FF4500; --actual: #00E676; --text: #FFFFFF; --sub: #A0A0A0; --border: #222222; }
         body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding: 20px; }
         .nav { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; }
         .btn { background: #1C1C1C; color: var(--sub); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; }
@@ -18,31 +18,34 @@
         .strategy h3 { margin-top: 0; color: var(--primary); font-size: 1rem; margin-bottom: 5px; }
         .table-container { width: 100%; overflow-x: auto; margin-top: 15px; }
         
-        /* 💡 核心美化：確保表格內的多行文字能正確顯示換行與分段 */
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { color: var(--primary); font-size: 0.8rem; text-transform: uppercase; padding: 14px 12px; border-bottom: 2px solid #333; text-align: left; background: #16161A; }
-        td { padding: 14px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: #E0E0E0; line-height: 1.6; vertical-align: top; white-space: pre-line; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th { font-size: 0.8rem; text-transform: uppercase; padding: 14px 12px; border-bottom: 2px solid #333; text-align: left; background: #16161A; }
+        .th-expected { color: var(--primary); border-top: 2px solid var(--primary); }
+        .th-actual { color: var(--actual); border-top: 2px solid var(--actual); background: #0A1A10; }
+        td { padding: 15px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: #E0E0E0; line-height: 1.6; vertical-align: top; white-space: pre-line; }
         tr:hover { background: #1A1A1A; transition: 0.2s; }
+        .tag-shoe { background:#222; padding:4px 8px; border-radius:4px; font-size:0.75rem; display: inline-block; margin-top: 6px; border: 1px solid #333; }
+        .tag-data { font-family: monospace; font-size: 0.95rem; color: #CCC; }
     </style>
 </head>
 <body>
     <header><h1 style="font-size: 1.6rem; margin-bottom: 25px;">Lemon | 2026 Marathon Command</h1></header>
 
     <div class="nav">
-        <button id="btn-logs" class="btn active" onclick="switchTab('logs')">真實訓練日誌</button>
-        <button id="btn-plans" class="btn" onclick="switchTab('plans')">週期化預計課表</button>
+        <button id="btn-logs" class="btn" onclick="switchTab('logs')">真實訓練日誌總表</button>
+        <button id="btn-plans" class="btn active" onclick="switchTab('plans')">🔄 預計與真實雙軌對照</button>
         <button id="btn-races" class="btn" onclick="switchTab('races')">賽事藍圖對照</button>
     </div>
 
-    <div id="logs" class="panel active"><div class="card"><h2>真實訓練日誌</h2><div id="logs-content" class="table-container">載入中...</div></div></div>
+    <div id="logs" class="panel"><div class="card"><h2>真實訓練日誌</h2><div id="logs-content" class="table-container">載入中...</div></div></div>
     
-    <div id="plans" class="panel">
+    <div id="plans" class="panel active">
         <div class="card">
-            <h2>📅 週期化課表探索</h2>
+            <h2>📅 預計 vs 真實 雙軌對照艙</h2>
             <p style="color: var(--sub); font-size: 0.85rem; margin-bottom: 5px;">第一步：選擇訓練月份</p>
             <div id="month-nav" class="sub-nav">載入中...</div>
             <div id="strategy-box" class="strategy"><h3>訓練戰略大綱</h3><p style="margin: 0; color: var(--sub);">請先點選上方月份...</p></div>
-            <p style="color: var(--sub); font-size: 0.85rem; margin-bottom: 5px;">第二步：選擇週次 (w1 - w5)</p>
+            <p style="color: var(--sub); font-size: 0.85rem; margin-bottom: 5px;">第二步：選擇週次查看對照表</p>
             <div id="week-nav" class="sub-nav">等待選擇月份...</div>
             <div id="plans-content" class="table-container"></div>
         </div>
@@ -68,7 +71,9 @@
         };
 
         let planData = [];
-        let colKeys = {};
+        let logData = [];
+        let colKeys = {}; // 課表欄位
+        let logKeys = {}; // 日誌欄位
 
         function switchTab(id) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -77,9 +82,34 @@
             document.getElementById('btn-' + id).classList.add('active');
         }
 
-        Papa.parse(URLS.logs, { download: true, header: true, complete: res => renderTable(res.data, 'logs-content') });
+        function formatCellText(text) {
+            if (!text) return '';
+            return text.trim().replace(/^"|"$/g, '').replace(/\n/g, '<br>');
+        }
+
+        // 讀取日誌 (Logs)
+        Papa.parse(URLS.logs, { 
+            download: true, header: true, skipEmptyLines: true,
+            complete: res => {
+                logData = res.data;
+                renderTable(res.data, 'logs-content');
+                if (logData.length > 0) {
+                    let h = Object.keys(logData[0]);
+                    logKeys.date = h.find(k => k.includes('日期'));
+                    logKeys.month = h.find(k => k.includes('月'));
+                    logKeys.week = h.find(k => k.includes('週') && !k.includes('星'));
+                    logKeys.day = h.find(k => k.includes('星'));
+                    logKeys.content = h.find(k => k.includes('實際執行'));
+                    logKeys.pace = h.find(k => k.includes('配速'));
+                    logKeys.hr = h.find(k => k.includes('心率'));
+                    logKeys.memo = h.find(k => k.includes('體感') || k.includes('備註'));
+                }
+            } 
+        });
+
         Papa.parse(URLS.races, { download: true, header: true, complete: res => renderTable(res.data, 'races-content') });
 
+        // 讀取課表 (Plans)
         Papa.parse(URLS.plans, { 
             download: true, header: true, skipEmptyLines: true,
             complete: (res) => {
@@ -122,39 +152,74 @@
             }
         }
 
-        // 💡 核心優化：渲染單格時，自動把 Excel 內部的換行代換成網頁格式，並加上整齊的格式
-        function formatCellText(text) {
-            if (!text) return '';
-            // 把換行字元代換成 <br>，並移除多餘的頭尾引號
-            return text.trim().replace(/^"|"$/g, '').replace(/\n/g, '<br>');
-        }
-
         function renderPlan(m, w, btn) {
             if(btn) {
                 document.querySelectorAll('#week-nav .btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             }
             
-            let filtered = planData.filter(r => {
+            // 抓出該週的「預計課表」
+            let filteredPlan = planData.filter(r => {
                 let cellMonth = String(r[colKeys.month] || '').replace(/\s+/g, '');
                 let cellWeek = String(r[colKeys.week] || '').trim();
                 return (cellMonth === m || cellMonth === m.replace('月', '')) && cellWeek === w;
             });
             
-            let html = '<table><thead><tr><th style="width: 80px;">星期</th><th>精確課表內容與跑錶設定參數</th><th>專項戰術備忘錄</th><th style="width: 120px;">建議跑鞋</th></tr></thead><tbody>';
-            filtered.forEach(r => {
+            // 表頭設計（左邊預計，右邊真實）
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th class="th-expected" style="width: 80px;">星期</th>
+                        <th class="th-expected" style="width: 25%;">🎯 預計課表與戰術</th>
+                        <th class="th-actual" style="width: 30%;">✅ 實際執行紀錄</th>
+                        <th class="th-actual" style="width: 15%;">📊 實際數據</th>
+                        <th class="th-actual">📝 實際體感</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            filteredPlan.forEach(p => {
+                let pDay = String(p[colKeys.day]).trim();
+                
+                // 💡 神奇魔法：去 logData (日誌) 裡面找「同月份、同週次、同星期」的那一筆資料
+                let actualLog = logData.find(l => {
+                    if(!l[logKeys.month] || !l[logKeys.week] || !l[logKeys.day]) return false;
+                    let lM = String(l[logKeys.month]).replace(/\s+/g, '');
+                    let lW = String(l[logKeys.week]).trim();
+                    let lD = String(l[logKeys.day]).trim();
+                    return (lM === m || lM === m.replace('月', '')) && lW === w && lD === pDay;
+                });
+
+                // 設定真實數據的顯示內容（如果有找到資料就顯示綠色，沒找到就顯示灰色未執行）
+                let actDate = (actualLog && actualLog[logKeys.date]) ? `<br><span style="font-size:0.75rem; color:var(--sub)">${actualLog[logKeys.date]}</span>` : '';
+                let actContent = actualLog ? `<span style="color:var(--actual); font-weight:bold;">${formatCellText(actualLog[logKeys.content])}</span>` : '<span style="color:#444;">尚未執行</span>';
+                let actPace = actualLog && actualLog[logKeys.pace] ? actualLog[logKeys.pace] : '-';
+                let actHR = actualLog && actualLog[logKeys.hr] ? actualLog[logKeys.hr] : '-';
+                let dataStr = actualLog ? `<span class="tag-data">配速: ${actPace}<br>心率: ${actHR}</span>` : '<span style="color:#444;">-</span>';
+                let actMemo = actualLog ? formatCellText(actualLog[logKeys.memo]) : '<span style="color:#444;">-</span>';
+
+                // 產出雙軌對照的 HTML 結構
                 html += `<tr>
-                    <td style="font-weight:bold; color:var(--primary); vertical-align: top;">${formatCellText(r[colKeys.day])}</td>
-                    <td>${formatCellText(r[colKeys.content])}</td>
-                    <td style="color:var(--sub); font-size:0.85rem;">${formatCellText(r[colKeys.memo])}</td>
-                    <td><span style="background:#222; padding:6px 10px; border-radius:4px; font-size:0.8rem; display: inline-block;">👟 ${formatCellText(r[colKeys.shoe]) || '-'}</span></td>
+                    <td style="font-weight:bold; color:var(--primary);">${formatCellText(p[colKeys.day])}${actDate}</td>
+                    <td>
+                        <div style="margin-bottom: 8px;">${formatCellText(p[colKeys.content])}</div>
+                        <div style="color:var(--sub); font-size:0.85rem;">💡 ${formatCellText(p[colKeys.memo])}</div>
+                        <div class="tag-shoe">👟 ${formatCellText(p[colKeys.shoe]) || '-'}</div>
+                    </td>
+                    <td style="background: rgba(0, 230, 118, 0.03); border-left: 1px solid #333;">${actContent}</td>
+                    <td style="background: rgba(0, 230, 118, 0.03);">${dataStr}</td>
+                    <td style="background: rgba(0, 230, 118, 0.03); font-size:0.85rem;">${actMemo}</td>
                 </tr>`;
             });
+            
             document.getElementById('plans-content').innerHTML = html + '</tbody></table>';
         }
 
         function renderTable(data, id) {
-            if(!data || data.length === 0) return;
+            if(!data || data.length === 0) {
+                document.getElementById(id).innerHTML = "暫無數據";
+                return;
+            }
             let html = '<table><thead><tr>';
             Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
             html += '</tr></thead><tbody>';
