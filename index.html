@@ -6,62 +6,94 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { background: #0B0B0C; color: #F5F5F7; font-family: sans-serif; padding: 20px; }
-        .card { background: #16161A; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2C2C35; }
+        .card { background: #16161A; padding: 20px; border-radius: 12px; border: 1px solid #2C2C35; margin-bottom: 20px; }
         .nav { display: flex; gap: 10px; margin-bottom: 20px; }
-        button { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
-        button.active { background: #FF5200; }
+        .btn { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        .btn.active { background: #FF5200; }
         .panel { display: none; }
         .panel.active { display: block; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        th, td { padding: 12px; border-bottom: 1px solid #2C2C35; text-align: left; }
-        th { color: #FF5200; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { color: #FF5200; padding: 12px; border-bottom: 1px solid #333; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #2C2C35; }
     </style>
 </head>
 <body>
     <h1>Lemon 馬拉松數據指揮艙</h1>
+    
     <div class="nav">
         <button id="btn-logs" class="active" onclick="switchTab('logs')">訓練日誌</button>
         <button id="btn-plans" onclick="switchTab('plans')">預計課表</button>
         <button id="btn-races" onclick="switchTab('races')">賽事對照</button>
     </div>
 
-    <div id="logs" class="panel active"><div class="card"><h2>真實訓練日誌</h2><div id="logs-content"></div></div></div>
-    <div id="plans" class="panel"><div class="card"><h2>每週預計課表</h2><div id="plans-content"></div></div></div>
-    <div id="races" class="panel"><div class="card"><h2>賽事對照與反饋</h2><div id="races-content"></div></div></div>
+    <div id="logs" class="panel active"><div class="card"><h2>訓練日誌紀錄</h2><div id="logs-content">同步中...</div></div></div>
+    
+    <div id="plans" class="panel">
+        <div class="card">
+            <h2>週期化預計課表</h2>
+            <div id="month-nav"></div>
+            <div id="week-nav"></div>
+            <div id="plans-content">請點選月份查看...</div>
+        </div>
+    </div>
+
+    <div id="races" class="panel"><div class="card"><h2>賽事藍圖對照</h2><div id="races-content">同步中...</div></div></div>
 
     <script>
-        // 這裡填入你三個分頁的獨立 CSV 連結
-        const URLS = {
+        // 🌟 請把這三個連結貼在這！
+        const DATA_URLS = {
             logs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv",
             plans: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv",
             races: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=1066810723&single=true&output=csv"
         };
 
+        let planData = [];
+
         function switchTab(id) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.getElementById('btn-' + id).classList.add('active');
         }
 
-        function load(key) {
-            Papa.parse(URLS[key], {
+        // 初始化讀取
+        Object.keys(DATA_URLS).forEach(key => {
+            Papa.parse(DATA_URLS[key], {
                 download: true, header: true,
-                complete: function(results) {
-                    let html = '<table class="table-style"><thead><tr>';
-                    Object.keys(results.data[0]).forEach(k => html += `<th>${k}</th>`);
-                    html += '</tr></thead><tbody>';
-                    results.data.forEach(row => {
-                        html += '<tr>';
-                        Object.values(row).forEach(v => html += `<td>${v}</td>`);
-                        html += '</tr>';
-                    });
-                    document.getElementById(key + '-content').innerHTML = html + '</tbody></table>';
+                complete: (results) => {
+                    if (key === 'plans') {
+                        planData = results.data;
+                        initPlanUI();
+                    } else {
+                        renderTable(results.data, key + '-content');
+                    }
                 }
             });
+        });
+
+        function renderTable(data, id) {
+            let html = '<table><thead><tr>';
+            Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
+            html += '</tr></thead><tbody>';
+            data.forEach(r => { html += '<tr>'; Object.values(r).forEach(v => html += `<td>${v}</td>`); html += '</tr>'; });
+            document.getElementById(id).innerHTML = html + '</tbody></table>';
         }
 
-        load('logs'); load('plans'); load('races');
+        function initPlanUI() {
+            let months = [...new Set(planData.map(r => r.月份))];
+            document.getElementById('month-nav').innerHTML = months.map(m => `<button class="btn" onclick="selectMonth('${m}')">${m}</button>`).join('');
+        }
+
+        function selectMonth(m) {
+            let weeks = [...new Set(planData.filter(r => r.月份 === m).map(r => r.週期週數))];
+            document.getElementById('week-nav').innerHTML = weeks.map(w => `<button class="btn" onclick="renderPlan('${m}','${w}')">${w}</button>`).join('');
+        }
+
+        function renderPlan(m, w) {
+            let filtered = planData.filter(r => r.月份 === m && r.週期週數 === w);
+            if(filtered.length === 0) { document.getElementById('plans-content').innerHTML = "待更新"; return; }
+            renderTable(filtered, 'plans-content');
+        }
     </script>
 </body>
 </html>
