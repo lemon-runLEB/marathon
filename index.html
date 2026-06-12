@@ -2,49 +2,61 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>Lemon 馬拉松指揮艙</title>
+    <title>Lemon 馬拉松數據指揮艙</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { background: #0B0B0C; color: #F5F5F7; font-family: sans-serif; padding: 20px; }
-        .card { background: #16161A; padding: 20px; border-radius: 12px; border: 1px solid #2C2C35; margin-bottom: 20px; }
-        .nav { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
-        .btn.active { background: #FF5200; }
+        :root { --bg: #0B0B0C; --card: #16161A; --primary: #FF5200; --sub: #8E8E93; --text: #F5F5F7; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 20px; }
+        .nav { display: flex; gap: 10px; margin-bottom: 30px; }
+        .btn { background: #333; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; }
+        .btn.active { background: var(--primary); }
         .panel { display: none; }
         .panel.active { display: block; }
+        .card { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #2C2C35; margin-bottom: 20px; }
+        .strategy { border-left: 4px solid var(--primary); padding-left: 15px; margin: 15px 0; color: var(--sub); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { color: #FF5200; padding: 12px; border-bottom: 1px solid #333; text-align: left; }
+        th { color: var(--primary); padding: 12px; border-bottom: 1px solid #333; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #2C2C35; }
     </style>
 </head>
 <body>
     <h1>Lemon 馬拉松數據指揮艙</h1>
-    
     <div class="nav">
-        <button id="btn-logs" class="active" onclick="switchTab('logs')">訓練日誌</button>
-        <button id="btn-plans" onclick="switchTab('plans')">預計課表</button>
-        <button id="btn-races" onclick="switchTab('races')">賽事對照</button>
+        <button id="btn-logs" class="btn active" onclick="switchTab('logs')">訓練日誌</button>
+        <button id="btn-plans" class="btn" onclick="switchTab('plans')">週期課表</button>
+        <button id="btn-races" class="btn" onclick="switchTab('races')">賽事對照</button>
     </div>
 
-    <div id="logs" class="panel active"><div class="card"><h2>訓練日誌紀錄</h2><div id="logs-content">同步中...</div></div></div>
+    <div id="logs" class="panel active"><div class="card"><h2>訓練日誌紀錄</h2><div id="logs-content">數據載入中...</div></div></div>
     
     <div id="plans" class="panel">
         <div class="card">
-            <h2>週期化預計課表</h2>
+            <h2>📅 週期化課表探索</h2>
             <div id="month-nav"></div>
+            <div id="strategy-box" class="strategy">請選擇月份查看戰略...</div>
             <div id="week-nav"></div>
-            <div id="plans-content">請點選月份查看...</div>
+            <div id="plans-content"></div>
         </div>
     </div>
 
-    <div id="races" class="panel"><div class="card"><h2>賽事藍圖對照</h2><div id="races-content">同步中...</div></div></div>
+    <div id="races" class="panel"><div class="card"><h2>賽事藍圖對照</h2><div id="races-content">數據載入中...</div></div></div>
 
     <script>
-        // 🌟 請把這三個連結貼在這！
-        const DATA_URLS = {
+        // 🌟 請在這裡準確填入三個分頁的 CSV 發佈連結
+        const URLS = {
             logs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv",
             plans: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv",
             races: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=1066810723&single=true&output=csv"
+        };
+
+        const STRATEGY = {
+            "6月": "基礎建構期：開發有氧油箱，每週五進行右側臀中肌激活，死守足弓外偏防線。",
+            "7月": "耐熱築牆期：適應高溫，心率控制在 140bpm 以內，保護右膝。",
+            "8月": "強度切換期：乳酸閾值跑，拉高抗疲勞剛性。",
+            "9月": "速度耐力高峰期：內化 4'15\" 目標配速，強化賽前模擬。",
+            "10月": "減量精準期：大砍量、守張力，準備 10/31 華航半馬。",
+            "11月": "賽事收割期：魔鬼四連賽，全力衝擊田中與 Garmin 賽事。",
+            "12月": "賽後修復期：賽後完全拆彈，重建體能基底。"
         };
 
         let planData = [];
@@ -56,43 +68,44 @@
             document.getElementById('btn-' + id).classList.add('active');
         }
 
-        // 初始化讀取
-        Object.keys(DATA_URLS).forEach(key => {
-            Papa.parse(DATA_URLS[key], {
-                download: true, header: true,
-                complete: (results) => {
-                    if (key === 'plans') {
-                        planData = results.data;
-                        initPlanUI();
-                    } else {
-                        renderTable(results.data, key + '-content');
-                    }
-                }
-            });
+        // 讀取所有數據
+        Object.keys(URLS).forEach(key => {
+            Papa.parse(URLS[key], { download: true, header: true, complete: (res) => {
+                if(key === 'plans') { planData = res.data; renderMonths(); }
+                else { renderTable(res.data, key + '-content'); }
+            }});
         });
+
+        function renderMonths() {
+            let months = ["6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+            document.getElementById('month-nav').innerHTML = months.map(m => 
+                `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
+        }
+
+        function selectMonth(m, btn) {
+            document.querySelectorAll('#month-nav .btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('strategy-box').innerHTML = `<h3>戰略目標：</h3><p>${STRATEGY[m]}</p>`;
+            let weeks = [...new Set(planData.filter(r => r.月份 === m).map(r => r.週期週數))];
+            document.getElementById('week-nav').innerHTML = weeks.map(w => 
+                `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join('');
+        }
+
+        function renderPlan(m, w, btn) {
+            document.querySelectorAll('#week-nav .btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            let filtered = planData.filter(r => r.月份 === m && r.週期週數 === w);
+            renderTable(filtered, 'plans-content');
+        }
 
         function renderTable(data, id) {
             let html = '<table><thead><tr>';
-            Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
-            html += '</tr></thead><tbody>';
-            data.forEach(r => { html += '<tr>'; Object.values(r).forEach(v => html += `<td>${v}</td>`); html += '</tr>'; });
-            document.getElementById(id).innerHTML = html + '</tbody></table>';
-        }
-
-        function initPlanUI() {
-            let months = [...new Set(planData.map(r => r.月份))];
-            document.getElementById('month-nav').innerHTML = months.map(m => `<button class="btn" onclick="selectMonth('${m}')">${m}</button>`).join('');
-        }
-
-        function selectMonth(m) {
-            let weeks = [...new Set(planData.filter(r => r.月份 === m).map(r => r.週期週數))];
-            document.getElementById('week-nav').innerHTML = weeks.map(w => `<button class="btn" onclick="renderPlan('${m}','${w}')">${w}</button>`).join('');
-        }
-
-        function renderPlan(m, w) {
-            let filtered = planData.filter(r => r.月份 === m && r.週期週數 === w);
-            if(filtered.length === 0) { document.getElementById('plans-content').innerHTML = "待更新"; return; }
-            renderTable(filtered, 'plans-content');
+            if(data.length > 0) {
+                Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
+                html += '</tr></thead><tbody>';
+                data.forEach(r => { html += '<tr>'; Object.values(r).forEach(v => html += `<td>${v}</td>`); html += '</tr>'; });
+                document.getElementById(id).innerHTML = html + '</tbody></table>';
+            }
         }
     </script>
 </body>
