@@ -2,110 +2,64 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>Lemon 馬拉松數據指揮艙</title>
+    <title>Lemon 馬拉松指揮艙 - 強力除錯版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { --bg: #0B0B0C; --card: #16161A; --primary: #FF5200; --sub: #8E8E93; --text: #F5F5F7; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 20px; }
-        .nav { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
-        .btn.active { background: var(--primary); }
-        .panel { display: none; }
-        .panel.active { display: block; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #2C2C35; margin-bottom: 20px; }
-        .strategy { border-left: 4px solid var(--primary); padding-left: 15px; margin: 15px 0; color: var(--sub); font-style: italic; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { color: var(--primary); padding: 12px; border-bottom: 2px solid #333; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #2C2C35; }
+        body { background: #0B0B0C; color: #F5F5F7; font-family: sans-serif; padding: 20px; }
+        .card { background: #16161A; padding: 20px; border-radius: 12px; border: 1px solid #2C2C35; margin-bottom: 20px; }
+        .btn { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; margin: 5px; }
+        .btn.active { background: #FF5200; }
+        .debug { color: yellow; font-size: 0.8rem; }
     </style>
 </head>
 <body>
-    <h1>Lemon 馬拉松數據指揮艙</h1>
-    <div class="nav">
-        <button id="btn-logs" class="btn active" onclick="switchTab('logs')">訓練日誌</button>
-        <button id="btn-plans" class="btn" onclick="switchTab('plans')">週期課表</button>
-        <button id="btn-races" class="btn" onclick="switchTab('races')">賽事對照</button>
+    <h1>Lemon 馬拉松指揮艙</h1>
+    <div class="card">
+        <h2>📅 週期化課表探索</h2>
+        <div id="month-nav">載入中...</div>
+        <div id="week-nav"></div>
+        <div id="plans-content"></div>
     </div>
-
-    <div id="logs" class="panel active"><div class="card"><h2>訓練日誌</h2><div id="logs-content">載入中...</div></div></div>
-    
-    <div id="plans" class="panel">
-        <div class="card">
-            <h2>📅 週期化課表探索</h2>
-            <div id="month-nav" class="nav"></div>
-            <div id="strategy-box" class="strategy">請選擇月份...</div>
-            <div id="week-nav" class="nav"></div>
-            <div id="plans-content"></div>
-        </div>
-    </div>
-
-    <div id="races" class="panel"><div class="card"><h2>賽事藍圖</h2><div id="races-content">載入中...</div></div></div>
 
     <script>
-        const URLS = {
-            logs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv",
-            plans: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv",
-            races: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=1066810723&single=true&output=csv"
-        };
-
-        const STRATEGY = {
-            "6月": "基礎建構期：開發有氧油箱。每週五執行右臀激活，死守足弓外偏防線。",
-            "7月": "耐熱築牆期：心率鎖死 140bpm 以下，專注步頻與呼吸節奏。",
-            "8月": "強度切換期：執行乳酸閾值跑，抗疲勞剛性提升。",
-            "9月": "速度高峰期：定錨 4'15\" 目標配速體感。",
-            "10月": "賽前減量期：大砍量、守張力，準備 10/31 華航半馬。",
-            "11月": "賽事收割期：魔鬼四連賽，糖原密鋪，全力衝刺。",
-            "12月": "賽後修復期：賽後完全拆彈，重建體能基底。"
-        };
-
+        const PLAN_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv";
         let planData = [];
 
-        function switchTab(id) {
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.getElementById('btn-' + id).classList.add('active');
-        }
-
-        // 讀取所有資料
-        Object.keys(URLS).forEach(key => {
-            Papa.parse(URLS[key], { download: true, header: true, complete: (res) => {
-                if(key === 'plans') { planData = res.data; renderMonths(); }
-                else { renderTable(res.data, key + '-content'); }
-            }});
+        Papa.parse(PLAN_URL, {
+            download: true, header: true,
+            complete: (results) => {
+                planData = results.data;
+                // [DEBUG] 顯示抓到的第一筆資料，用來檢查欄位名稱是否正確
+                console.log("資料格式:", planData[0]);
+                if(planData.length > 0) {
+                    let keys = Object.keys(planData[0]);
+                    document.getElementById('month-nav').innerHTML = "偵測到欄位: " + keys.join(', ') + "<br>" + 
+                    [...new Set(planData.map(r => r.月份))].map(m => `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
+                }
+            }
         });
-
-        function renderMonths() {
-            let months = ["6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-            document.getElementById('month-nav').innerHTML = months.map(m => 
-                `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
-        }
 
         function selectMonth(m, btn) {
             document.querySelectorAll('#month-nav .btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById('strategy-box').innerHTML = `<h3>戰略大綱：</h3><p>${STRATEGY[m] || "待規劃"}</p>`;
-            // 這裡修正了讀取欄位，確保對應你的 "週期週數"
-            let weeks = [...new Set(planData.filter(r => r.月份 === m).map(r => r.週期週數))].filter(w => w);
+            
+            // 重要：這裡檢查欄位是否真的叫 "月份" 和 "週期週數"
+            let weeks = [...new Set(planData.filter(r => r.月份 == m).map(r => r.週期週數))].filter(w => w);
+            
             document.getElementById('week-nav').innerHTML = weeks.map(w => 
-                `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join('');
-            document.getElementById('plans-content').innerHTML = "";
+                `<button class="btn" onclick="renderPlan('${m}', '${w}', this)">${w}</button>`).join('');
+            
+            if(weeks.length === 0) document.getElementById('week-nav').innerHTML = "找不到該月週次，請檢查 Excel 欄位名稱";
         }
 
         function renderPlan(m, w, btn) {
             document.querySelectorAll('#week-nav .btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            let filtered = planData.filter(r => r.月份 === m && r.週期週數 === w);
-            renderTable(filtered, 'plans-content');
-        }
-
-        function renderTable(data, id) {
-            if(data.length === 0) return;
-            let html = '<table><thead><tr>';
-            Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
-            html += '</tr></thead><tbody>';
-            data.forEach(r => { html += '<tr>'; Object.values(r).forEach(v => html += `<td>${v}</td>`); html += '</tr>'; });
-            document.getElementById(id).innerHTML = html + '</tbody></table>';
+            let filtered = planData.filter(r => r.月份 == m && r.週期週數 == w);
+            
+            let html = '<table><thead><tr><th>星期</th><th>內容</th></tr></thead><tbody>';
+            filtered.forEach(r => html += `<tr><td>${r.星期}</td><td>${r.精確課表內容與跑錶設定參數}</td></tr>`);
+            document.getElementById('plans-content').innerHTML = html + '</tbody></table>';
         }
     </script>
 </body>
