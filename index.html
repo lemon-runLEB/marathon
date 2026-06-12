@@ -23,7 +23,6 @@
         th { font-size: 0.85rem; text-transform: uppercase; padding: 14px 12px; border-bottom: 2px solid #333; text-align: left; background: #16161A; }
         .th-expected { color: var(--primary); border-top: 2px solid var(--primary); }
         .th-actual { color: var(--actual); border-top: 2px solid var(--actual); background: #0A1A10; }
-        
         td { padding: 15px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: #E0E0E0; line-height: 1.6; vertical-align: top; white-space: pre-line; }
         tr:hover { background: #1A1A1A; transition: 0.2s; }
         
@@ -37,11 +36,17 @@
         .summary-value { font-size: 1.5rem; font-weight: bold; }
         .summary-unit { font-size: 0.9rem; color: var(--sub); font-weight: normal; }
 
-        /* 🏆 賽事卡片專屬美化 */
         .race-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-top: 20px; }
         .race-card { background: #1A1A1A; border-radius: 12px; padding: 20px; position: relative; overflow: hidden; transition: transform 0.2s; border: 1px solid #333; }
         .race-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .tier-badge { position: absolute; top: 0; right: 0; padding: 6px 15px; font-weight: bold; font-size: 0.8rem; border-bottom-left-radius: 12px; }
+
+        /* 📸 相片牆專屬外觀（瀑布流美化版） */
+        .photo-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .photo-item { border-radius: 12px; overflow: hidden; position: relative; aspect-ratio: 4/3; background: #1A1A1A; border: 1px solid #333; cursor: pointer; }
+        .photo-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .photo-item:hover img { transform: scale(1.08); }
+        .photo-caption { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.85)); color: #fff; font-size: 1rem; padding: 40px 15px 15px; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -49,12 +54,13 @@
 
     <div class="nav">
         <button id="btn-plans" class="btn active" onclick="switchTab('plans')">🔄 預計與真實雙軌對照</button>
-        <button id="btn-races" class="btn" onclick="switchTab('races')">🏆 年度賽事藍圖與倒數</button>
+        <button id="btn-races" class="btn" onclick="switchTab('races')">🏆 年度賽事戰情牆</button>
+        <button id="btn-photos" class="btn" onclick="switchTab('photos')">📸 跑者榮耀相片牆</button>
     </div>
     
     <div id="plans" class="panel active">
         <div class="card">
-            <h2>📅 預計 vs 真實 對照</h2>
+            <h2>📅 預計 vs 真實 雙軌對照艙</h2>
             <p style="color: var(--sub); font-size: 0.85rem; margin-bottom: 5px;">第一步：選擇訓練月份</p>
             <div id="month-nav" class="sub-nav">載入中...</div>
             
@@ -74,18 +80,23 @@
         </div>
     </div>
 
-    <div id="races" class="panel">
+    <div id="races" class="panel"><div class="card"><h2>🏆 2026 年度賽事戰情牆</h2><div id="races-content" class="table-container">載入中...</div></div></div>
+
+    <div id="photos" class="panel">
         <div class="card">
-            <h2>🏆 2026 年度賽事戰情牆</h2>
-            <div id="races-content">賽事藍圖載入中...</div>
+            <h2>📸 跑者榮耀相片牆</h2>
+            <p style="color: var(--sub); margin-bottom: 20px;">直接貼上你的 Google 相簿分享連結，網頁會自動為你排版出美觀的相片牆。</p>
+            <div id="gallery-content" class="photo-gallery">照片載入中...</div>
         </div>
     </div>
 
     <script>
+        // 🚨 記得把最後一個 gallery 換成你第四個分頁的 CSV 連結喔！
         const URLS = {
             logs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv",
             plans: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv",
-            races: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=1066810723&single=true&output=csv"
+            races: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=1066810723&single=true&output=csv",
+            gallery: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=1164891801&single=true&output=csv" 
         };
 
         const STRATEGY = {
@@ -113,9 +124,27 @@
             return text.trim().replace(/^"|"$/g, '').replace(/\n/g, '<br>');
         }
 
-        // 讀取日誌 (不顯示為分頁)
+        // 🌟 升級版網址轉譯器：這次加上了 Google 相簿的支援！
+        function extractUrl(text) {
+            if(!text) return null;
+            let url = text.trim();
+            if(!url.startsWith('http')) return null;
+
+            // GitHub 修復
+            if (url.includes('github.com') && url.includes('/blob/')) {
+                return url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+            }
+            // Google Drive 修復
+            if (url.includes('drive.google.com/file/d/')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+            }
+            // 💡 Google 相簿連結：直接回傳，交由後續的 <img> 標籤處理，或點擊跳轉
+            return url;
+        }
+
         Papa.parse(URLS.logs, { 
-            download: true, header: true, skipEmptyLines: true, trimHeaders: true,
+            download: true, header: true, skipEmptyLines: true,
             complete: res => {
                 logData = res.data;
                 if (logData.length > 0) {
@@ -134,38 +163,57 @@
             } 
         });
 
-        // 🏆 讀取賽事並啟動智能防呆
-        Papa.parse(URLS.races, { 
-            download: true, header: true, skipEmptyLines: true, trimHeaders: true,
-            complete: res => renderRaces(res.data, 'races-content') 
-        });
+        Papa.parse(URLS.races, { download: true, header: true, skipEmptyLines: true, trimHeaders: true, complete: res => renderRaces(res.data, 'races-content') });
+        Papa.parse(URLS.plans, { download: true, header: true, skipEmptyLines: true, complete: (res) => {
+            if (res.data.length === 0) return;
+            planData = res.data;
+            let headers = Object.keys(planData[0]);
+            colKeys.month = headers.find(k => k.includes('月')) || headers[5];
+            colKeys.week = headers.find(k => k.includes('週')) || headers[0];
+            colKeys.day = headers.find(k => k.includes('星')) || headers[1];
+            colKeys.content = headers.find(k => k.includes('課表') || k.includes('跑錶')) || headers[2];
+            colKeys.memo = headers.find(k => k.includes('備忘')) || headers[3];
+            colKeys.shoe = headers.find(k => k.includes('鞋')) || headers[4];
+            let months = ["6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+            document.getElementById('month-nav').innerHTML = months.map(m => `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
+        }});
 
-        Papa.parse(URLS.plans, { 
-            download: true, header: true, skipEmptyLines: true, trimHeaders: true,
-            complete: (res) => {
-                if (res.data.length === 0) return;
-                planData = res.data;
-                let headers = Object.keys(planData[0]);
-                colKeys.month = headers.find(k => k.includes('月')) || headers[5];
-                colKeys.week = headers.find(k => k.includes('週')) || headers[0];
-                colKeys.day = headers.find(k => k.includes('星')) || headers[1];
-                colKeys.content = headers.find(k => k.includes('課表') || k.includes('跑錶')) || headers[2];
-                colKeys.memo = headers.find(k => k.includes('備忘')) || headers[3];
-                colKeys.shoe = headers.find(k => k.includes('鞋')) || headers[4];
+        // 📸 讀取相片牆分頁並渲染（美化瀑布流）
+        if(URLS.gallery && URLS.gallery.includes('http')) {
+            Papa.parse(URLS.gallery, {
+                download: true, header: true, skipEmptyLines: true, trimHeaders: true,
+                complete: res => {
+                    let data = res.data;
+                    let container = document.getElementById('gallery-content');
+                    if(data.length === 0) { container.innerHTML = "<p style='color:var(--sub)'>請在 Excel 貼上連結。</p>"; return; }
+                    
+                    let h = Object.keys(data[0]);
+                    let kDesc = h.find(k => k.includes('描述') || k.includes('名稱') || k.includes('文字')) || h[0];
+                    let kUrl = h.find(k => k.includes('連結') || k.includes('網址') || k.includes('圖片')) || h[1];
 
-                let months = ["6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-                document.getElementById('month-nav').innerHTML = months.map(m => `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
-            }
-        });
+                    let html = '';
+                    data.forEach(r => {
+                        let originalUrl = r[kUrl];
+                        let desc = r[kDesc] || '';
+                        let cleanUrl = extractUrl(originalUrl);
+                        
+                        if(cleanUrl) {
+                            // 💡 針對 Google Photos 做最佳化視覺呈現，點擊卡片直接跳轉到該張照片
+                            html += `
+                                <div class="photo-item" onclick="window.open('${cleanUrl}', '_blank')">
+                                    <img src="${cleanUrl.includes('photos.app.goo.gl') ? 'https://img.icons8.com/color/480/google-photos.png' : cleanUrl}" style="${cleanUrl.includes('photos.app.goo.gl') ? 'object-fit: contain; padding: 30px; background: #222;' : ''}" alt="Photo">
+                                    <div class="photo-caption">${desc}</div>
+                                </div>
+                            `;
+                        }
+                    });
+                    container.innerHTML = html !== '' ? html : "<p style='color:var(--sub)'>尚未偵測到有效相片網址。</p>";
+                }
+            });
+        }
 
-        // 🏆 賽事卡片生成邏輯（加入了智能尋標，無視任何表頭空格錯誤）
         function renderRaces(data, id) {
-            if(!data || data.length === 0) { 
-                document.getElementById(id).innerHTML = "<p style='color:var(--sub)'>暫無賽事數據</p>"; 
-                return; 
-            }
-
-            // 智能抓取欄位名稱，避免 Excel 打錯字或多空白
+            if(!data || data.length === 0) { document.getElementById(id).innerHTML = "<p style='color:var(--sub)'>暫無賽事數據</p>"; return; }
             let h = Object.keys(data[0]);
             let kDate = h.find(k => k.includes('日期')) || h[0];
             let kRace = h.find(k => k.includes('賽事') && !k.includes('級別')) || h[1];
@@ -175,86 +223,39 @@
             let kActual = h.find(k => k.includes('成績') && !k.includes('目標')) || h[5];
             let kPB = h.find(k => k.toUpperCase().includes('PB')) || h[6];
             let kMemo = h.find(k => k.includes('備註')) || h[7];
-
             let html = '<div class="race-grid">';
-            let today = new Date();
-            today.setHours(0,0,0,0); // 將時間歸零，確保倒數精準
-            
+            let today = new Date(); today.setHours(0,0,0,0);
             let hasRace = false;
-
             data.forEach(r => {
-                let raceName = r[kRace];
-                if(!raceName || raceName.trim() === '') return; // 略過空白行
-                hasRace = true;
-                
-                let raceDateStr = r[kDate] || '';
-                let raceDate = new Date(raceDateStr);
-                let category = r[kCat] || '';
-                let target = r[kTarget] || '完賽';
-                let actual = r[kActual] || '';
-                let memo = r[kMemo] || '';
-                let isPB = r[kPB] ? true : false;
-                
+                let raceName = r[kRace]; if(!raceName || raceName.trim() === '') return; hasRace = true;
+                let raceDateStr = r[kDate] || ''; let raceDate = new Date(raceDateStr);
+                let category = r[kCat] || ''; let target = r[kTarget] || '完賽'; let actual = r[kActual] || ''; let memo = r[kMemo] || ''; let isPB = r[kPB] ? true : false;
                 let tier = String(r[kTier] || 'C').toUpperCase().trim();
                 let tierColor = tier === 'A' ? 'var(--tier-a)' : (tier === 'B' ? 'var(--tier-b)' : '#666');
                 let glow = tier === 'A' ? 'box-shadow: 0 4px 15px rgba(255, 0, 85, 0.2);' : '';
-                
-                // 智慧倒數系統
                 let countdownHtml = '';
-                if(actual && actual.trim() !== '') {
-                    countdownHtml = `<div style="color:var(--actual); font-weight:bold; font-size:1.1rem; margin-top:10px;">🏁 賽事已完成</div>`;
-                } else if(raceDateStr && !isNaN(raceDate)) {
+                if(actual && actual.trim() !== '') { countdownHtml = `<div style="color:var(--actual); font-weight:bold; font-size:1.1rem; margin-top:10px;">🏁 賽事已完成</div>`; }
+                else if(raceDateStr && !isNaN(raceDate)) {
                     let daysLeft = Math.ceil((raceDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                    if (daysLeft > 0) {
-                        countdownHtml = `<div style="color:${tierColor}; font-weight:bold; font-size:1.4rem; margin-top:10px;">⏳ 倒數 ${daysLeft} 天</div>`;
-                    } else if (daysLeft === 0) {
-                        countdownHtml = `<div style="color:var(--tier-a); font-weight:bold; font-size:1.4rem; margin-top:10px;">🔥 今天開跑！</div>`;
-                    } else {
-                        countdownHtml = `<div style="color:var(--sub); font-weight:bold; font-size:1.1rem; margin-top:10px;">🕒 待填成績...</div>`;
-                    }
+                    if (daysLeft > 0) countdownHtml = `<div style="color:${tierColor}; font-weight:bold; font-size:1.4rem; margin-top:10px;">⏳ 倒數 ${daysLeft} 天</div>`;
+                    else if (daysLeft === 0) countdownHtml = `<div style="color:var(--tier-a); font-weight:bold; font-size:1.4rem; margin-top:10px;">🔥 今天開跑！</div>`;
+                    else countdownHtml = `<div style="color:var(--sub); font-weight:bold; font-size:1.1rem; margin-top:10px;">🕒 待填成績...</div>`;
                 }
-                
                 let resultHtml = '';
                 if(actual && actual.trim() !== '') {
                     let pbBadge = isPB ? `<span style="background:var(--tier-a); color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem; margin-left:5px;">🔥 破 PB!</span>` : '';
                     resultHtml = `<div style="margin-top:5px; color:var(--actual); font-weight:bold; font-size:1.1rem;">🏆 實際: ${actual} ${pbBadge}</div>`;
                 }
-
-                html += `
-                <div class="race-card" style="border-top: 4px solid ${tierColor}; ${glow}">
-                    <div class="tier-badge" style="background:${tierColor}; color:#000;">${tier} 級</div>
-                    <h3 style="margin: 0 0 5px 0; font-size: 1.25rem; color: #FFF; padding-right: 40px;">${raceName}</h3>
-                    <div style="color: var(--sub); font-size: 0.9rem; margin-bottom: 10px;">
-                        <span style="margin-right:10px;">📅 ${raceDateStr}</span> 
-                        <span>🏃‍♂️ ${category}</span>
-                    </div>
-                    ${countdownHtml}
-                    <hr style="border: none; border-top: 1px solid #333; margin: 15px 0;">
-                    <div>
-                        <div style="color: var(--sub); font-size: 0.95rem;">🎯 目標: <span style="color:#FFF;">${target}</span></div>
-                        ${resultHtml}
-                    </div>
-                    ${memo ? `<div style="margin-top:12px; font-size:0.85rem; color:#888; background:#111; padding:8px; border-radius:6px; border-left: 2px solid #444;">${formatCellText(memo)}</div>` : ''}
-                </div>
-                `;
+                html += `<div class="race-card" style="border-top: 4px solid ${tierColor}; ${glow}"><div class="tier-badge" style="background:${tierColor}; color:#000;">${tier} 級</div><h3 style="margin: 0 0 5px 0; font-size: 1.25rem; color: #FFF; padding-right: 40px;">${raceName}</h3><div style="color: var(--sub); font-size: 0.9rem; margin-bottom: 10px;"><span style="margin-right:10px;">📅 ${raceDateStr}</span><span>🏃‍♂️ ${category}</span></div>${countdownHtml}<hr style="border: none; border-top: 1px solid #333; margin: 15px 0;"><div><div style="color: var(--sub); font-size: 0.95rem;">🎯 目標: <span style="color:#FFF;">${target}</span></div>${resultHtml}</div>${memo ? `<div style="margin-top:12px; font-size:0.85rem; color:#888; background:#111; padding:8px; border-radius:6px; border-left: 2px solid #444;">${formatCellText(memo)}</div>` : ''}</div>`;
             });
-            
             html += '</div>';
-            
-            // 如果所有資料都被判定為空白，則顯示無數據
-            if(!hasRace) {
-                document.getElementById(id).innerHTML = "<p style='color:var(--sub)'>請確認 Excel 是否有填寫賽事名稱。</p>";
-            } else {
-                document.getElementById(id).innerHTML = html;
-            }
+            if(!hasRace) document.getElementById(id).innerHTML = "<p style='color:var(--sub)'>請確認 Excel 是否有填寫賽事名稱。</p>";
+            else document.getElementById(id).innerHTML = html;
         }
 
-        // --- 預計與真實對照邏輯 ---
         function selectMonth(m, btn) {
-            document.querySelectorAll('#month-nav .btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            document.querySelectorAll('#month-nav .btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
             document.getElementById('strategy-box').innerHTML = `<h3>📅 ${m} 訓練戰略大綱</h3><p style="margin:0; line-height: 1.6;">${STRATEGY[m] || "待規劃"}</p>`;
-            
             let monthlyTotalMileage = 0;
             if (logKeys.distance) {
                 logData.forEach(l => {
@@ -266,109 +267,30 @@
                     }
                 });
             }
-            
-            document.getElementById('month-summary-box').style.display = 'inline-flex';
-            document.getElementById('month-mileage-val').innerHTML = `${monthlyTotalMileage.toFixed(2)} <span class="summary-unit">km</span>`;
-
-            let matchedRows = planData.filter(r => {
-                let cellVal = String(r[colKeys.month] || '').replace(/\s+/g, '');
-                return cellVal === m || cellVal === m.replace('月', '');
-            });
-
+            document.getElementById('month-summary-box').style.display = 'inline-flex'; document.getElementById('month-mileage-val').innerHTML = `${monthlyTotalMileage.toFixed(2)} <span class="summary-unit">km</span>`;
+            let matchedRows = planData.filter(r => { let cellVal = String(r[colKeys.month] || '').replace(/\s+/g, ''); return cellVal === m || cellVal === m.replace('月', ''); });
             let weeks = [...new Set(matchedRows.map(r => String(r[colKeys.week]).trim()))].filter(w => w && w !== 'undefined' && w !== 'null');
-            
-            if (weeks.length === 0) {
-                document.getElementById('week-nav').innerHTML = "<span style='color:orange;'>⚠️ 這個月在 Excel 裡還沒有輸入課表資料喔！</span>";
-                document.getElementById('plans-content').innerHTML = "";
-            } else {
-                weeks.sort();
-                document.getElementById('week-nav').innerHTML = weeks.map(w => `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join('');
-                renderPlan(m, weeks[0], document.getElementById('week-nav').firstElementChild);
-            }
+            if (weeks.length === 0) { document.getElementById('week-nav').innerHTML = "<span style='color:orange;'>⚠️ 這個月在 Excel 裡還沒有輸入課表資料喔！</span>"; document.getElementById('plans-content').innerHTML = ""; }
+            else { weeks.sort(); document.getElementById('week-nav').innerHTML = weeks.map(w => `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join(''); renderPlan(m, weeks[0], document.getElementById('week-nav').firstElementChild); }
         }
 
         function renderPlan(m, w, btn) {
-            if(btn) {
-                document.querySelectorAll('#week-nav .btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
-            
-            let filteredPlan = planData.filter(r => {
-                let cellMonth = String(r[colKeys.month] || '').replace(/\s+/g, '');
-                let cellWeek = String(r[colKeys.week] || '').trim();
-                return (cellMonth === m || cellMonth === m.replace('月', '')) && cellWeek === w;
-            });
-            
+            if(btn) { document.querySelectorAll('#week-nav .btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+            let filteredPlan = planData.filter(r => { let cellMonth = String(r[colKeys.month] || '').replace(/\s+/g, ''); let cellWeek = String(r[colKeys.week] || '').trim(); return (cellMonth === m || cellMonth === m.replace('月', '')) && cellWeek === w; });
             let weeklyTotalMileage = 0;
-
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th class="th-expected" style="width: 8%;">星期</th>
-                        <th class="th-expected" style="width: 42%;">🎯 預計目標 (課表/戰術/鞋)</th>
-                        <th class="th-actual divider-col" style="width: 24%;">✅ 實際執行</th>
-                        <th class="th-actual" style="width: 14%;">📊 實際數據</th>
-                        <th class="th-actual" style="width: 12%;">📝 體感</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
+            let html = `<table><thead><tr><th style="width: 8%;">星期</th><th style="width: 42%;">🎯 預計目標 (課表/戰術/鞋)</th><th class="th-actual divider-col" style="width: 24%;">✅ 實際執行</th><th class="th-actual" style="width: 14%;">📊 實際數據</th><th class="th-actual" style="width: 12%;">📝 體感</th></tr></thead><tbody>`;
             filteredPlan.forEach(p => {
                 let pDay = String(p[colKeys.day]).trim();
-                let actualLog = logData.find(l => {
-                    if(!l[logKeys.month] || !l[logKeys.week] || !l[logKeys.day]) return false;
-                    let lM = String(l[logKeys.month]).replace(/\s+/g, '');
-                    let lW = String(l[logKeys.week]).trim();
-                    let lD = String(l[logKeys.day]).trim();
-                    return (lM === m || lM === m.replace('月', '')) && lW === w && lD === pDay;
-                });
-
-                if (actualLog && logKeys.distance && actualLog[logKeys.distance]) {
-                    let distValue = parseFloat(String(actualLog[logKeys.distance]).replace(/[^\d.]/g, ''));
-                    if (!isNaN(distValue)) {
-                        weeklyTotalMileage += distValue;
-                    }
-                }
-
+                let actualLog = logData.find(l => { if(!l[logKeys.month] || !l[logKeys.week] || !l[logKeys.day]) return false; let lM = String(l[logKeys.month]).replace(/\s+/g, ''); let lW = String(l[logKeys.week]).trim(); let lD = String(l[logKeys.day]).trim(); return (lM === m || lM === m.replace('月', '')) && lW === w && lD === pDay; });
+                if (actualLog && logKeys.distance && actualLog[logKeys.distance]) { let distValue = parseFloat(String(actualLog[logKeys.distance]).replace(/[^\d.]/g, '')); if (!isNaN(distValue)) weeklyTotalMileage += distValue; }
                 let actDate = (actualLog && actualLog[logKeys.date]) ? `<br><span style="font-size:0.75rem; color:var(--sub)">${actualLog[logKeys.date]}</span>` : '';
                 let actContent = actualLog ? `<span style="color:var(--actual); font-weight:bold;">${formatCellText(actualLog[logKeys.content])}</span>` : '<span style="color:#444;">尚未執行</span>';
-                
-                let actDist = actualLog && actualLog[logKeys.distance] ? actualLog[logKeys.distance] : '-';
-                let actPace = actualLog && actualLog[logKeys.pace] ? actualLog[logKeys.pace] : '-';
-                let actHR = actualLog && actualLog[logKeys.hr] ? actualLog[logKeys.hr] : '-';
-                let actCadence = actualLog && actualLog[logKeys.cadence] ? actualLog[logKeys.cadence] : '-';
-                
-                let dataStr = actualLog ? 
-                    `<div class="tag-data">
-                        <span class="data-label">里程:</span><span style="color:#FFD700">${actDist}</span><br>
-                        <span class="data-label">配速:</span>${actPace}<br>
-                        <span class="data-label">心率:</span>${actHR}<br>
-                        <span class="data-label">步頻:</span><span style="color:var(--actual)">${actCadence}</span>
-                     </div>` 
-                    : '<span style="color:#444;">-</span>';
-                
+                let actDist = actualLog && actualLog[logKeys.distance] ? actualLog[logKeys.distance] : '-'; let actPace = actualLog && actualLog[logKeys.pace] ? actualLog[logKeys.pace] : '-'; let actHR = actualLog && actualLog[logKeys.hr] ? actualLog[logKeys.hr] : '-'; let actCadence = actualLog && actualLog[logKeys.cadence] ? actualLog[logKeys.cadence] : '-';
+                let dataStr = actualLog ? `<div class="tag-data"><span class="data-label">里程:</span><span style="color:#FFD700">${actDist}</span><br><span class="data-label">配速:</span>${actPace}<br><span class="data-label">心率:</span>${actHR}<br><span class="data-label">步頻:</span><span style="color:var(--actual)">${actCadence}</span></div>` : '<span style="color:#444;">-</span>';
                 let actMemo = actualLog ? formatCellText(actualLog[logKeys.memo]) : '<span style="color:#444;">-</span>';
-
-                html += `<tr>
-                    <td style="font-weight:bold; color:var(--primary);">${formatCellText(p[colKeys.day])}${actDate}</td>
-                    <td>
-                        <div style="margin-bottom: 8px;">${formatCellText(p[colKeys.content])}</div>
-                        <div style="color:var(--sub); font-size:0.85rem;">💡 ${formatCellText(p[colKeys.memo])}</div>
-                        <div class="tag-shoe">👟 ${formatCellText(p[colKeys.shoe]) || '-'}</div>
-                    </td>
-                    <td class="divider-col" style="background: rgba(0, 230, 118, 0.03);">${actContent}</td>
-                    <td style="background: rgba(0, 230, 118, 0.03);">${dataStr}</td>
-                    <td style="background: rgba(0, 230, 118, 0.03); font-size:0.85rem;">${actMemo}</td>
-                </tr>`;
+                html += `<tr><td style="font-weight:bold; color:var(--primary);">${formatCellText(p[colKeys.day])}${actDate}</td><td><div style="margin-bottom: 8px;">${formatCellText(p[colKeys.content])}</div><div style="color:var(--sub); font-size:0.85rem;">💡 ${formatCellText(p[colKeys.memo])}</div><div class="tag-shoe">👟 ${formatCellText(p[colKeys.shoe]) || '-'}</div></td><td class="divider-col" style="background: rgba(0, 230, 118, 0.03);">${actContent}</td><td style="background: rgba(0, 230, 118, 0.03);">${dataStr}</td><td style="background: rgba(0, 230, 118, 0.03); font-size:0.85rem;">${actMemo}</td></tr>`;
             });
-            
-            let summaryPanel = `
-                <div class="summary-box" style="border-left: 4px solid var(--actual);">
-                    <span class="summary-label">🏃‍♂️ 當週實際總里程</span>
-                    <span class="summary-value" style="color: var(--actual);">${weeklyTotalMileage.toFixed(2)} <span class="summary-unit">km</span></span>
-                </div>
-            `;
-            
+            let summaryPanel = `<div class="summary-box" style="border-left: 4px solid var(--actual);"><span class="summary-label">🏃‍♂️ 當週實際總里程</span><span class="summary-value" style="color: var(--actual);">${weeklyTotalMileage.toFixed(2)} <span class="summary-unit">km</span></span></div>`;
             document.getElementById('plans-content').innerHTML = summaryPanel + html + '</tbody></table>';
         }
     </script>
