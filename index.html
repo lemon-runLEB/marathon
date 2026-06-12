@@ -2,40 +2,38 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>Lemon 馬拉松數據指揮艙</title>
+    <title>Lemon Marathon Command</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         :root { --bg: #050505; --card: #121212; --primary: #FF4500; --text: #FFFFFF; --sub: #A0A0A0; --border: #222222; }
         body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding: 20px; }
-        .nav { display: flex; gap: 10px; margin-bottom: 25px; }
+        .nav { display: flex; gap: 10px; margin-bottom: 30px; }
         .btn { background: #1C1C1C; color: var(--sub); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
         .btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .panel { display: none; }
         .panel.active { display: block; }
         .card { background: var(--card); padding: 25px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .strategy { border-left: 4px solid var(--primary); padding: 10px 20px; background: #1A1A1A; margin-bottom: 20px; border-radius: 0 8px 8px 0; color: var(--sub); }
+        .strategy { border-left: 4px solid var(--primary); padding: 10px 20px; background: #1A1A1A; margin-bottom: 20px; color: var(--sub); font-style: italic; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th { color: var(--primary); font-size: 0.75rem; text-transform: uppercase; padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
-        td { padding: 15px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-        tr:hover { background: #1A1A1A; }
+        td { padding: 15px 12px; border-bottom: 1px solid var(--border); }
     </style>
 </head>
 <body>
-    <header><h1>Lemon | 2026 Marathon Command</h1></header>
-
+    <h1>Lemon | 2026 Marathon Command</h1>
     <div class="nav">
         <button id="btn-logs" class="btn active" onclick="switchTab('logs')">訓練日誌</button>
         <button id="btn-plans" class="btn" onclick="switchTab('plans')">週期課表</button>
         <button id="btn-races" class="btn" onclick="switchTab('races')">賽事對照</button>
     </div>
 
-    <div id="logs" class="panel active"><div class="card"><h2>真實訓練日誌</h2><div id="logs-content">數據同步中...</div></div></div>
+    <div id="logs" class="panel active"><div class="card"><h2>訓練日誌</h2><div id="logs-content">數據同步中...</div></div></div>
     
     <div id="plans" class="panel">
         <div class="card">
             <h2>📅 週期化課表探索</h2>
             <div id="month-nav" class="nav"></div>
-            <div id="strategy-box" class="strategy">請選擇月份查看戰略大綱...</div>
+            <div id="strategy-box" class="strategy">請選擇月份以載入戰術大綱...</div>
             <div id="week-nav" class="nav"></div>
             <div id="plans-content"></div>
         </div>
@@ -44,7 +42,6 @@
     <div id="races" class="panel"><div class="card"><h2>賽事藍圖對照</h2><div id="races-content">數據同步中...</div></div></div>
 
     <script>
-        // 🌟 你的三個連結入口
         const URLS = {
             logs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv",
             plans: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv",
@@ -70,7 +67,7 @@
             document.getElementById('btn-' + id).classList.add('active');
         }
 
-        // 讀取所有數據通道
+        // 初始化所有頁籤
         Object.keys(URLS).forEach(key => {
             Papa.parse(URLS[key], { download: true, header: true, trimHeaders: true, complete: (res) => {
                 if(key === 'plans') { planData = res.data.filter(r => r['月份']); renderMonths(); }
@@ -80,8 +77,7 @@
 
         function renderMonths() {
             let months = ["6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-            document.getElementById('month-nav').innerHTML = months.map(m => 
-                `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
+            document.getElementById('month-nav').innerHTML = months.map(m => `<button class="btn" onclick="selectMonth('${m}', this)">${m}</button>`).join('');
         }
 
         function selectMonth(m, btn) {
@@ -89,8 +85,7 @@
             btn.classList.add('active');
             document.getElementById('strategy-box').innerHTML = `<h3>戰略大綱：</h3><p>${STRATEGY[m] || "待規劃"}</p>`;
             let weeks = [...new Set(planData.filter(r => r['月份'] === m).map(r => r['週期週數']))].filter(w => w);
-            document.getElementById('week-nav').innerHTML = weeks.map(w => 
-                `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join('');
+            document.getElementById('week-nav').innerHTML = weeks.map(w => `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join('');
         }
 
         function renderPlan(m, w, btn) {
@@ -101,7 +96,7 @@
         }
 
         function renderTable(data, id) {
-            if(data.length === 0) return;
+            if(!data || data.length === 0) return;
             let html = '<table><thead><tr>';
             Object.keys(data[0]).forEach(k => html += `<th>${k}</th>`);
             html += '</tr></thead><tbody>';
