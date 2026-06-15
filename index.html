@@ -150,7 +150,7 @@
             "7月": "耐熱築牆期：撐大心臟幫浦（最大攝氧量）、提升高溫下的有氧抗壓能力。",
             "8月": "強度切換期：訓練身體高速清運乳酸的能力（T 跑），正式鎖定半馬 1h30m 的 {4'15''} 配速。",
             "9月": "速度高峰期：訓練身體高速清運乳酸的能力（T 跑），正式鎖定半馬 1h30m 的 {4'15''} 配速。",
-            "10月": "賽前減量期：：習慣全馬 2h50m 的配速體感（M 跑），將體能推向年度巔峰。",
+            "10月": "賽前減量期：習慣全馬 2h50m 的配速體感（M 跑），將體能推向年度巔峰。",
             "11月": "賽事收割期：消除前四個月累積的深層疲勞（減量 Taper）、肝醣超補、迎接巔峰狀態！",
             "12月": "賽後修復期：全馬賽後修復、體能保溫。"
         };
@@ -249,27 +249,36 @@
             });
         }
 
+        // 🚨 修正：最高級別防呆尋標器，嚴格排除「級」和「等」字，確保精準抓到賽事名稱
         function renderRaces(data, id) {
             if(!data || data.length === 0) { document.getElementById(id).innerHTML = "<p style='color:var(--sub)'>暫無賽事數據</p>"; return; }
             let h = Object.keys(data[0]);
+            
             let kDate = h.find(k => k.includes('日期')) || h[0];
-            let kRace = h.find(k => k.includes('賽事') && !k.includes('級別')) || h[1];
-            let kCat = h.find(k => k.includes('組別')) || h[2];
-            let kTier = h.find(k => k.includes('級別')) || h[3];
+            // 嚴格篩選：必須叫做賽事或名稱，且絕對不能包含級或等
+            let kRace = h.find(k => k === '賽事' || k.includes('名稱') || k.includes('比賽')) || h.find(k => k.includes('賽事') && !k.includes('級') && !k.includes('等')) || h[1];
+            let kCat = h.find(k => k.includes('組別') || k.includes('項目') || k.includes('距離')) || h[2];
+            let kTier = h.find(k => k.includes('級') || k.includes('等')) || h[3];
             let kTarget = h.find(k => k.includes('目標')) || h[4];
             let kActual = h.find(k => k.includes('成績') && !k.includes('目標')) || h[5];
             let kPB = h.find(k => k.toUpperCase().includes('PB')) || h[6];
-            let kMemo = h.find(k => k.includes('備註')) || h[7];
+            let kMemo = h.find(k => k.includes('備註') || k.includes('心得')) || h[7];
+            
             let html = '<div class="race-grid">';
             let today = new Date(); today.setHours(0,0,0,0);
             let hasRace = false;
+            
             data.forEach(r => {
-                let raceName = r[kRace]; if(!raceName || raceName.trim() === '') return; hasRace = true;
+                let raceName = r[kRace]; 
+                if(!raceName || raceName.trim() === '') return; 
+                hasRace = true;
+                
                 let raceDateStr = r[kDate] || ''; let raceDate = new Date(raceDateStr);
                 let category = r[kCat] || ''; let target = r[kTarget] || '完賽'; let actual = r[kActual] || ''; let memo = r[kMemo] || ''; let isPB = r[kPB] ? true : false;
                 let tier = String(r[kTier] || 'C').toUpperCase().trim();
                 let tierColor = tier === 'A' ? 'var(--tier-a)' : (tier === 'B' ? 'var(--tier-b)' : '#666');
                 let glow = tier === 'A' ? 'box-shadow: 0 4px 15px rgba(255, 0, 85, 0.2);' : '';
+                
                 let countdownHtml = '';
                 if(actual && actual.trim() !== '') { countdownHtml = `<div style="color:var(--actual); font-weight:bold; font-size:1.1rem; margin-top:10px;">🏁 賽事已完成</div>`; }
                 else if(raceDateStr && !isNaN(raceDate)) {
@@ -278,11 +287,13 @@
                     else if (daysLeft === 0) countdownHtml = `<div style="color:var(--tier-a); font-weight:bold; font-size:1.4rem; margin-top:10px;">🔥 今天開跑！</div>`;
                     else countdownHtml = `<div style="color:var(--sub); font-weight:bold; font-size:1.1rem; margin-top:10px;">🕒 待填成績...</div>`;
                 }
+                
                 let resultHtml = '';
                 if(actual && actual.trim() !== '') {
                     let pbBadge = isPB ? `<span style="background:var(--tier-a); color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem; margin-left:5px;">🔥 破 PB!</span>` : '';
                     resultHtml = `<div style="margin-top:5px; color:var(--actual); font-weight:bold; font-size:1.1rem;">🏆 實際: ${actual} ${pbBadge}</div>`;
                 }
+                
                 html += `<div class="race-card" style="border-top: 4px solid ${tierColor}; ${glow}"><div class="tier-badge" style="background:${tierColor}; color:#000;">${tier} 級</div><h3 style="margin: 0 0 5px 0; font-size: 1.25rem; color: #FFF; padding-right: 40px;">${raceName}</h3><div style="color: var(--sub); font-size: 0.9rem; margin-bottom: 10px;"><span style="margin-right:10px;">📅 ${raceDateStr}</span><span>🏃‍♂️ ${category}</span></div>${countdownHtml}<hr style="border: none; border-top: 1px solid #333; margin: 15px 0;"><div><div style="color: var(--sub); font-size: 0.95rem;">🎯 目標: <span style="color:#FFF;">${target}</span></div>${resultHtml}</div>${memo ? `<div style="margin-top:12px; font-size:0.85rem; color:#888; background:#111; padding:8px; border-radius:6px; border-left: 2px solid #444;">${formatCellText(memo)}</div>` : ''}</div>`;
             });
             html += '</div>';
