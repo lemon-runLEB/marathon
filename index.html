@@ -61,6 +61,16 @@
         .photo-caption { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.6), transparent); color: #fff; font-size: 0.95rem; padding: 35px 20px 20px; font-weight: 500; pointer-events: none; opacity: 0; transform: translateY(15px); transition: all 0.4s ease; }
         .photo-item:hover .photo-caption { opacity: 1; transform: translateY(0); }
 
+        /* 👟 戰靴配裝指南卡片 */
+        .shoe-rotation-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .shoe-card { background: #16161A; border-radius: 12px; padding: 25px; border: 1px solid #2A2A2A; transition: transform 0.2s; position: relative; }
+        .shoe-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+        .shoe-title { font-size: 1.3rem; font-weight: bold; margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px; }
+        .shoe-usage { font-size: 0.85rem; color: var(--sub); margin-bottom: 15px; border-bottom: 1px dashed #333; padding-bottom: 15px; }
+        .shoe-list { margin: 0; padding: 0; list-style: none; }
+        .shoe-list li { background: #0A0A0A; margin-bottom: 8px; padding: 12px 15px; border-radius: 8px; font-weight: 600; color: #E0E0E0; border-left: 3px solid #555; display: flex; justify-content: space-between; align-items: center; }
+        .shoe-tips { margin-top: 15px; font-size: 0.85rem; color: #888; background: rgba(255,69,0,0.05); padding: 12px; border-radius: 8px; line-height: 1.5; }
+        
         /* 📱 手機版專屬優化 */
         @media (max-width: 768px) {
             body { padding: 10px; }
@@ -70,14 +80,14 @@
             .social-btn { flex: 1; justify-content: center; padding: 10px; font-size: 0.9rem; }
             
             .nav { gap: 8px; margin-bottom: 15px; }
-            .nav .btn { flex: 1 1 100%; text-align: center; padding: 14px 10px; font-size: 1rem; }
+            .nav .btn { flex: 1 1 calc(50% - 4px); text-align: center; padding: 12px 8px; font-size: 0.9rem; }
             .card { padding: 15px; }
             .sub-nav .btn { padding: 10px 15px; font-size: 0.95rem; flex: 1 1 calc(50% - 10px); text-align: center; }
             
             div[style*="display: flex; flex-wrap: wrap;"] { flex-direction: column; }
             .summary-box { width: 100%; box-sizing: border-box; justify-content: center; }
             
-            .race-grid { grid-template-columns: 1fr; }
+            .race-grid, .shoe-rotation-grid { grid-template-columns: 1fr; }
             .photo-gallery { column-count: 2; column-gap: 10px; }
             .photo-item { margin-bottom: 10px; border-radius: 12px; }
             .photo-item img { filter: brightness(1) grayscale(0%); }
@@ -86,6 +96,7 @@
         
         @media (max-width: 480px) {
             .photo-gallery { column-count: 1; }
+            .nav .btn { flex: 1 1 100%; }
         }
     </style>
 </head>
@@ -101,8 +112,9 @@
 
     <div class="nav">
         <button id="btn-plans" class="btn active" onclick="switchTab('plans')">🔄 預計與真實對照</button>
-        <button id="btn-races" class="btn" onclick="switchTab('races')">🏆 2026年度賽事戰情牆</button>
-        <button id="btn-photos" class="btn" onclick="switchTab('photos')">📸 LEMON訓練相片牆</button>
+        <button id="btn-races" class="btn" onclick="switchTab('races')">🏆 2026戰情牆</button>
+        <button id="btn-shoes" class="btn" onclick="switchTab('shoes')">👟 戰靴配裝指南</button>
+        <button id="btn-photos" class="btn" onclick="switchTab('photos')">📸 訓練相片牆</button>
     </div>
     
     <div id="plans" class="panel active">
@@ -128,6 +140,61 @@
     </div>
 
     <div id="races" class="panel"><div class="card"><h2>🏆 2026 年度賽事戰情牆</h2><div id="races-content" class="table-container">載入中...</div></div></div>
+
+    <div id="shoes" class="panel">
+        <div class="card">
+            <h2>👟 Lemon 的跑鞋矩陣 (Shoe Rotation)</h2>
+            <p style="color: var(--sub); margin-bottom: 20px; line-height: 1.6;">
+                「沒有一雙鞋能打天下，只有最適合課表的戰靴。」<br>
+                為不同強度的訓練配置對應的鞋款，是保護膝蓋、提升效能，並延長跑鞋壽命的最強科學。
+            </p>
+            
+            <div class="shoe-rotation-grid">
+                
+                <div class="shoe-card" style="border-top: 4px solid #FF0055;">
+                    <h3 class="shoe-title" style="color: #FF0055;">🔴 賽事測驗 (Race Day)</h3>
+                    <div class="shoe-usage">🎯 適用課表：全馬/半馬正賽、破 PB 測驗</div>
+                    <ul class="shoe-list">
+                        <li style="border-color: #FF0055;">adidas Adios Pro 4</li>
+                        <li style="border-color: #FF0055;">PUMA Deviate Nitro Elite 3</li>
+                        <li style="border-color: #FF0055;">李寧 飛電 6 Elite</li>
+                    </ul>
+                    <div class="shoe-tips">💡 <b>新手科普：</b><br>內嵌碳板與頂級超臨界泡棉，提供最強大的推進力與回彈。適合追求極限速度，但對下肢肌力與足弓要求較高，平常訓練不建議天天穿。</div>
+                </div>
+
+                <div class="shoe-card" style="border-top: 4px solid #FFB300;">
+                    <h3 class="shoe-title" style="color: #FFB300;">🟡 田徑場刺客 (Interval)</h3>
+                    <div class="shoe-usage">🎯 適用課表：400m/800m 短間歇、亞索800</div>
+                    <ul class="shoe-list">
+                        <li style="border-color: #FFB300;">adidas Adizero Adios 9</li>
+                        <li style="border-color: #FFB300;">DECATHLON Kiprun Tempo</li>
+                    </ul>
+                    <div class="shoe-tips">💡 <b>新手科普：</b><br>底偏薄、路感清晰、反應極快。不拖泥帶水，能完美配合 190+ 的高步頻在彎道推蹬，是喚醒快縮肌神經的純粹武器。</div>
+                </div>
+
+                <div class="shoe-card" style="border-top: 4px solid #00E676;">
+                    <h3 class="shoe-title" style="color: #00E676;">🟢 節奏與有氧 (Tempo/Daily)</h3>
+                    <div class="shoe-usage">🎯 適用課表：乳酸閾值跑 (T跑)、M配速、日常有氧</div>
+                    <ul class="shoe-list">
+                        <li style="border-color: #00E676;">adidas Adizero EVO SL</li>
+                        <li style="border-color: #00E676;">ASICS Novablast 5</li>
+                    </ul>
+                    <div class="shoe-tips">💡 <b>新手科普：</b><br>無碳板的神級萬金油！抽掉了碳板的死硬感，但保留了頂級泡棉的軟彈。在減輕雙腿負擔的同時，也能流暢維持 4'30" 左右的輕快節奏。</div>
+                </div>
+
+                <div class="shoe-card" style="border-top: 4px solid #2196F3;">
+                    <h3 class="shoe-title" style="color: #2196F3;">🔵 巡航艦 (LSD/Easy)</h3>
+                    <div class="shoe-usage">🎯 適用課表：週末 20km+ 長距離慢跑、恢復跑</div>
+                    <ul class="shoe-list">
+                        <li style="border-color: #2196F3;">NB SC Trainer v3</li>
+                        <li style="border-color: #2196F3;">adidas Adizero Boston 13</li>
+                    </ul>
+                    <div class="shoe-tips">💡 <b>新手科普：</b><br>極致的厚底緩衝與支撐幾何，能最大程度吸收長時間下腳的衝擊，保護高足弓與膝蓋外側，讓雙腿在隔天依然能保持新鮮感。</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <div id="photos" class="panel">
         <div class="card">
@@ -249,13 +316,11 @@
             });
         }
 
-        // 🚨 修正：最高級別防呆尋標器，嚴格排除「級」和「等」字，確保精準抓到賽事名稱
         function renderRaces(data, id) {
             if(!data || data.length === 0) { document.getElementById(id).innerHTML = "<p style='color:var(--sub)'>暫無賽事數據</p>"; return; }
             let h = Object.keys(data[0]);
             
             let kDate = h.find(k => k.includes('日期')) || h[0];
-            // 嚴格篩選：必須叫做賽事或名稱，且絕對不能包含級或等
             let kRace = h.find(k => k === '賽事' || k.includes('名稱') || k.includes('比賽')) || h.find(k => k.includes('賽事') && !k.includes('級') && !k.includes('等')) || h[1];
             let kCat = h.find(k => k.includes('組別') || k.includes('項目') || k.includes('距離')) || h[2];
             let kTier = h.find(k => k.includes('級') || k.includes('等')) || h[3];
