@@ -384,7 +384,7 @@
             document.getElementById('month-summary-box').style.display = 'inline-flex'; document.getElementById('month-mileage-val').innerHTML = `${monthlyTotalMileage.toFixed(2)} <span class="summary-unit">km</span>`;
             let matchedRows = planData.filter(r => { let cellVal = String(r[colKeys.month] || '').replace(/\s+/g, ''); return cellVal === m || cellVal === m.replace('月', ''); });
             let weeks = [...new Set(matchedRows.map(r => String(r[colKeys.week]).trim()))].filter(w => w && w !== 'undefined' && w !== 'null');
-            if (weeks.length === 0) { document.getElementById('week-nav').innerHTML = "<span style='color:orange;'>⚠️ 這個月在 Excel 裡還沒有輸入課表資料喔！</span>"; document.getElementById('plans-content').innerHTML = ""; }
+            if (weeks.length === 0) { document.getElementById('week-nav').innerHTML = "<span style='color:orange;'>⚠️ 這個月還沒有輸入課表資料喔！</span>"; document.getElementById('plans-content').innerHTML = ""; }
             else { weeks.sort(); document.getElementById('week-nav').innerHTML = weeks.map(w => `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join(''); renderPlan(m, weeks[0], document.getElementById('week-nav').firstElementChild); }
         }
 
