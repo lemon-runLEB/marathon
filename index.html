@@ -139,7 +139,7 @@
         </div>
     </div>
 
-    <div id="races" class="panel"><div class="card"><h2>🏆 2026 年度賽事戰情牆</h2><div id="races-content" class="table-container">載入中...</div></div></div>
+    <div id="races" class="panel"><div class="card"><h2>🏆 2026 年度賽事</h2><div id="races-content" class="table-container">載入中...</div></div></div>
 
     <div id="shoes" class="panel">
         <div class="card">
@@ -178,7 +178,7 @@
                     <ul class="shoe-list">
                         <li style="border-color: #00E676;">adidas Adizero EVO SL</li>
                         <li style="border-color: #00E676;">ASICS Novablast 5</li>
-                        <li style="border-color: #00E676;">李寧 赤兔9 Ultra </li>
+                        <li style="border-color: #00E676;">李寧 赤兔 9 Ultra</li>
                     </ul>
                     <div class="shoe-tips">💡 <b>新手科普：</b><br>無碳板的神級萬金油！抽掉了碳板的死硬感，但保留了頂級泡棉的軟彈。在減輕雙腿負擔的同時，也能流暢維持 4'30" 左右的輕快節奏。</div>
                 </div>
@@ -249,6 +249,7 @@
             return url;
         }
 
+        // 🚨 更新：加入抓取「熱身緩和」欄位的邏輯
         Papa.parse(URLS.logs, { 
             download: true, header: true, skipEmptyLines: true,
             complete: res => {
@@ -260,7 +261,8 @@
                     logKeys.week = h.find(k => k.includes('週') && !k.includes('星'));
                     logKeys.day = h.find(k => k.includes('星'));
                     logKeys.content = h.find(k => k.includes('實際執行') || k.includes('課表'));
-                    logKeys.distance = h.find(k => k.includes('里程') || k.includes('距離')); 
+                    logKeys.distance = h.find(k => k.includes('里程') || k.includes('距離') && !k.includes('熱身') && !k.includes('緩和')); 
+                    logKeys.warmup = h.find(k => k.includes('熱身') || k.includes('緩和') || k.includes('附加')); // 👈 尋找新欄位
                     logKeys.pace = h.find(k => k.includes('配速'));
                     logKeys.hr = h.find(k => k.includes('心率'));
                     logKeys.cadence = h.find(k => k.includes('步頻'));
@@ -367,6 +369,7 @@
             else document.getElementById(id).innerHTML = html;
         }
 
+        // 🚨 更新：當月跑量加入熱身里程
         function selectMonth(m, btn) {
             document.querySelectorAll('#month-nav .btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
             document.getElementById('strategy-box').innerHTML = `<h3>📅 ${m} 訓練戰略大綱</h3><p style="margin:0; line-height: 1.6;">${STRATEGY[m] || "待規劃"}</p>`;
@@ -377,17 +380,20 @@
                     let lM = String(l[logKeys.month]).replace(/\s+/g, '');
                     if (lM === m || lM === m.replace('月', '')) {
                         let distValue = parseFloat(String(l[logKeys.distance]).replace(/[^\d.]/g, ''));
+                        let warmupValue = (logKeys.warmup && l[logKeys.warmup]) ? parseFloat(String(l[logKeys.warmup]).replace(/[^\d.]/g, '')) : 0;
                         if (!isNaN(distValue)) monthlyTotalMileage += distValue;
+                        if (!isNaN(warmupValue)) monthlyTotalMileage += warmupValue; // 👈 累加當月熱身里程
                     }
                 });
             }
             document.getElementById('month-summary-box').style.display = 'inline-flex'; document.getElementById('month-mileage-val').innerHTML = `${monthlyTotalMileage.toFixed(2)} <span class="summary-unit">km</span>`;
             let matchedRows = planData.filter(r => { let cellVal = String(r[colKeys.month] || '').replace(/\s+/g, ''); return cellVal === m || cellVal === m.replace('月', ''); });
             let weeks = [...new Set(matchedRows.map(r => String(r[colKeys.week]).trim()))].filter(w => w && w !== 'undefined' && w !== 'null');
-            if (weeks.length === 0) { document.getElementById('week-nav').innerHTML = "<span style='color:orange;'>⚠️ 這個月還沒有輸入課表資料喔！</span>"; document.getElementById('plans-content').innerHTML = ""; }
+            if (weeks.length === 0) { document.getElementById('week-nav').innerHTML = "<span style='color:orange;'>⚠️ 這個月在 Excel 裡還沒有輸入課表資料喔！</span>"; document.getElementById('plans-content').innerHTML = ""; }
             else { weeks.sort(); document.getElementById('week-nav').innerHTML = weeks.map(w => `<button class="btn" onclick="renderPlan('${m}','${w}', this)">${w}</button>`).join(''); renderPlan(m, weeks[0], document.getElementById('week-nav').firstElementChild); }
         }
 
+        // 🚨 更新：當週跑量加入熱身里程，並隱藏顯示標籤
         function renderPlan(m, w, btn) {
             if(btn) { document.querySelectorAll('#week-nav .btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
             let filteredPlan = planData.filter(r => { let cellMonth = String(r[colKeys.month] || '').replace(/\s+/g, ''); let cellWeek = String(r[colKeys.week] || '').trim(); return (cellMonth === m || cellMonth === m.replace('月', '')) && cellWeek === w; });
@@ -396,12 +402,32 @@
             filteredPlan.forEach(p => {
                 let pDay = String(p[colKeys.day]).trim();
                 let actualLog = logData.find(l => { if(!l[logKeys.month] || !l[logKeys.week] || !l[logKeys.day]) return false; let lM = String(l[logKeys.month]).replace(/\s+/g, ''); let lW = String(l[logKeys.week]).trim(); let lD = String(l[logKeys.day]).trim(); return (lM === m || lM === m.replace('月', '')) && lW === w && lD === pDay; });
-                if (actualLog && logKeys.distance && actualLog[logKeys.distance]) { let distValue = parseFloat(String(actualLog[logKeys.distance]).replace(/[^\d.]/g, '')); if (!isNaN(distValue)) weeklyTotalMileage += distValue; }
+                
+                let warmupValue = 0;
+                if (actualLog && logKeys.warmup && actualLog[logKeys.warmup]) {
+                    warmupValue = parseFloat(String(actualLog[logKeys.warmup]).replace(/[^\d.]/g, ''));
+                    if (isNaN(warmupValue)) warmupValue = 0;
+                }
+
+                if (actualLog && logKeys.distance && actualLog[logKeys.distance]) { 
+                    let distValue = parseFloat(String(actualLog[logKeys.distance]).replace(/[^\d.]/g, '')); 
+                    if (!isNaN(distValue)) weeklyTotalMileage += distValue; 
+                    if (!isNaN(warmupValue)) weeklyTotalMileage += warmupValue; // 👈 累加當週熱身里程
+                }
+                
                 let actDate = (actualLog && actualLog[logKeys.date]) ? `<br><span style="font-size:0.75rem; color:var(--sub)">${actualLog[logKeys.date]}</span>` : '';
                 let actContent = actualLog ? `<span style="color:var(--actual); font-weight:bold;">${formatCellText(actualLog[logKeys.content])}</span>` : '<span style="color:#444;">尚未執行</span>';
-                let actDist = actualLog && actualLog[logKeys.distance] ? actualLog[logKeys.distance] : '-'; let actPace = actualLog && actualLog[logKeys.pace] ? actualLog[logKeys.pace] : '-'; let actHR = actualLog && actualLog[logKeys.hr] ? actualLog[logKeys.hr] : '-'; let actCadence = actualLog && actualLog[logKeys.cadence] ? actualLog[logKeys.cadence] : '-';
-                let dataStr = actualLog ? `<div class="tag-data"><span class="data-label">里程:</span><span style="color:#FFD700">${actDist}</span><br><span class="data-label">配速:</span>${actPace}<br><span class="data-label">心率:</span>${actHR}<br><span class="data-label">步頻:</span><span style="color:var(--actual)">${actCadence}</span></div>` : '<span style="color:#444;">-</span>';
+                let actDist = actualLog && actualLog[logKeys.distance] ? actualLog[logKeys.distance] : '-'; 
+                let actPace = actualLog && actualLog[logKeys.pace] ? actualLog[logKeys.pace] : '-'; 
+                let actHR = actualLog && actualLog[logKeys.hr] ? actualLog[logKeys.hr] : '-'; 
+                let actCadence = actualLog && actualLog[logKeys.cadence] ? actualLog[logKeys.cadence] : '-';
+                
+                // 👈 極度低調的小字，讓你知道系統有吃到資料，不影響視覺
+                let warmupTag = warmupValue > 0 ? `<span style="font-size:0.7rem; color:#555; margin-left:4px;">(+${warmupValue})</span>` : '';
+                
+                let dataStr = actualLog ? `<div class="tag-data"><span class="data-label">里程:</span><span style="color:#FFD700">${actDist}</span>${warmupTag}<br><span class="data-label">配速:</span>${actPace}<br><span class="data-label">心率:</span>${actHR}<br><span class="data-label">步頻:</span><span style="color:var(--actual)">${actCadence}</span></div>` : '<span style="color:#444;">-</span>';
                 let actMemo = actualLog ? formatCellText(actualLog[logKeys.memo]) : '<span style="color:#444;">-</span>';
+                
                 html += `<tr><td style="font-weight:bold; color:var(--primary);">${formatCellText(p[colKeys.day])}${actDate}</td><td><div style="margin-bottom: 8px;">${formatCellText(p[colKeys.content])}</div><div style="color:var(--sub); font-size:0.85rem;">💡 ${formatCellText(p[colKeys.memo])}</div><div class="tag-shoe">👟 ${formatCellText(p[colKeys.shoe]) || '-'}</div></td><td class="divider-col" style="background: rgba(0, 230, 118, 0.03);">${actContent}</td><td style="background: rgba(0, 230, 118, 0.03);">${dataStr}</td><td style="background: rgba(0, 230, 118, 0.03); font-size:0.85rem;">${actMemo}</td></tr>`;
             });
             let summaryPanel = `<div class="summary-box" style="border-left: 4px solid var(--actual);"><span class="summary-label">🏃‍♂️ 當週實際總里程</span><span class="summary-value" style="color: var(--actual);">${weeklyTotalMileage.toFixed(2)} <span class="summary-unit">km</span></span></div>`;
