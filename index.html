@@ -73,7 +73,6 @@
         .photo-caption { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.6), transparent); color: #fff; font-size: 0.95rem; padding: 35px 20px 20px; font-weight: 500; pointer-events: none; opacity: 0; transform: translateY(15px); transition: all 0.4s ease; }
         .photo-item:hover .photo-caption { opacity: 1; transform: translateY(0); }
 
-        /* 載入中畫面 */
         #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
         .spinner { border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -103,18 +102,15 @@
 </head>
 <body>
 
-    <!-- 載入畫面 -->
     <div id="loading-screen">
         <div class="spinner"></div>
         <div style="color: var(--accent); font-weight: bold;">正在連線至 Lemon 指揮艙資料庫...</div>
     </div>
 
-    <!-- 主內容區 -->
     <div id="main-content" style="display: none;">
         <h1 style="margin-bottom: 5px; color: var(--accent);">🏃‍♂️ Lemon 的馬拉松指揮艙</h1>
         <p style="color: var(--sub); margin-top: 0; margin-bottom: 20px;">目標：2026/11/08 田中初馬 Sub 300 | 2027/01/10 渣打馬 Sub 310</p>
 
-        <!-- 導覽列 -->
         <div class="nav" id="main-nav">
             <button id="btn-plans" class="btn active" onclick="switchTab('plans')">🔄 雙軌對照與紀錄</button>
             <button id="btn-shoes" class="btn" onclick="switchTab('shoes')">👟 跑鞋調度庫</button>
@@ -122,7 +118,6 @@
             <button id="btn-photos" class="btn" onclick="switchTab('photos')">📸 訓練相片牆</button>
         </div>
 
-        <!-- 雙軌對照面板 -->
         <div id="plans" class="panel active">
             <div class="card">
                 <h2>📅 預計課表 vs 真實訓練</h2>
@@ -155,7 +150,6 @@
             </div>
         </div>
 
-        <!-- 跑鞋庫面板 -->
         <div id="shoes" class="panel">
             <div class="card">
                 <h2>👟 現役戰靴調度指南</h2>
@@ -188,13 +182,12 @@
                     <div class="shoe-usage">🎯 適用：半馬測驗、全馬目標賽事</div>
                     <ul class="shoe-list">
                         <li style="border-color: #FF1744; background: #4a0000;">adidas Adios Pro 4</li>
-                        <li style="border-color: #FF1744; background: #4a0000;">Puma Deviate Nitro Elite 3</li>
+                        <li style="border-color: #FF1744; background: #4a0000;">Puma Deviate Nitro Elite 4</li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- 賽事牆面板 -->
         <div id="races" class="panel">
             <div class="card">
                 <h2>🏆 年度賽事戰情牆</h2>
@@ -203,7 +196,6 @@
             </div>
         </div>
 
-        <!-- 訓練相片牆面板 -->
         <div id="photos" class="panel">
             <div class="card">
                 <h2>📸 LEMON訓練相片牆</h2>
@@ -214,7 +206,6 @@
     </div>
 
     <script>
-        // 🚀 全自動雲端連線設定
         const URLS = {
             logs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=0&single=true&output=csv",
             plans: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJAGuKrOQuxjDzHvyy9upf0636fKJIy7X3JFGzMquA9x7y6URIaGCv0wqhGObgp364nY9YCuuX6udn/pub?gid=184866247&single=true&output=csv",
@@ -241,7 +232,6 @@
         
         let raceData = [], raceKeys = {}, raceYears = [], currentRaceYear = "";
 
-        // 頁籤切換
         function switchTab(tabId) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav .btn').forEach(b => b.classList.remove('active'));
@@ -293,9 +283,6 @@
             return 0;
         }
 
-        // =======================
-        // 初始化：自動載入所有資料
-        // =======================
         Promise.all([
             fetchCSV(URLS.logs),
             fetchCSV(URLS.plans),
@@ -310,7 +297,6 @@
             if(racesRes.data) processRaces(racesRes.data);
             if(galleryRes.data) processGallery(galleryRes.data);
 
-            // 關閉載入畫面，顯示主內容
             document.getElementById('loading-screen').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
         }).catch(err => {
@@ -325,7 +311,6 @@
             });
         }
 
-        // 處理訓練計畫與紀錄
         function processData() {
             combinedData = [];
             let yearSet = new Set();
@@ -348,7 +333,6 @@
                              let val = parseFloat(row[warmupColName]);
                              if(!isNaN(val)) row._warmupDistance = val;
                          }
-                         // 支援一日多練，改成存陣列
                          if(!logDict[formattedDate]) logDict[formattedDate] = [];
                          logDict[formattedDate].push(row);
                     }
@@ -366,7 +350,7 @@
                 let displayMonth = rawMonth.startsWith("0") ? rawMonth.substring(1) + "月" : rawMonth + "月";
                 
                 yearSet.add(year);
-                let week = pRow["週次"] || pRow["Week"] || "W?";
+                let week = pRow["週次"] || pRow["週期週數"] || pRow["Week"] || "W?";
                 let plannedMileage = extractMileage(pRow);
                 
                 let actualLogs = logDict[fDate] || [];
@@ -378,7 +362,7 @@
                 });
 
                 let status = 'gray'; 
-                if (pRow["訓練項目"] || pRow["課表"]) {
+                if (pRow["精確課表內容與跑錶設定參數"] || pRow["訓練項目"] || pRow["課表"]) {
                     if (actualLogs.length === 0) status = 'red'; 
                     else if (actualMileage >= plannedMileage * 0.8) status = 'green'; 
                     else status = 'yellow'; 
@@ -393,10 +377,16 @@
             });
 
             years = Array.from(yearSet).sort();
+            
+            // 🚨 智能追蹤當前時間 
+            let today = new Date();
+            let currentRealYear = String(today.getFullYear());
+            let currentRealMonth = String(today.getMonth() + 1) + "月";
+            
             if(years.length > 0) {
-                currentYear = years[0]; 
+                currentYear = years.includes(currentRealYear) ? currentRealYear : years[years.length - 1]; 
                 renderYearNav();
-                updateYearView();
+                updateYearView(currentRealMonth); // 傳入真實月份進行比對
             }
         }
 
@@ -412,18 +402,22 @@
             });
         }
 
-        function updateYearView() {
+        function updateYearView(targetMonth = null) {
             let mSet = new Set();
             combinedData.filter(d => d.year === currentYear).forEach(d => mSet.add(d.month));
             monthsInYear = Array.from(mSet).sort((a, b) => parseInt(a) - parseInt(b));
+            
             if (monthsInYear.length > 0) {
-                currentMonth = monthsInYear[0];
+                // 如果有傳入真實月份且資料庫裡有，就自動跳轉；否則顯示資料庫裡最新的月份
+                currentMonth = (targetMonth && monthsInYear.includes(targetMonth)) ? targetMonth : monthsInYear[monthsInYear.length - 1];
                 renderMonthNav();
                 updateMonthView();
             } else {
                 document.getElementById('month-nav').innerHTML = '';
                 document.getElementById('week-nav').innerHTML = '';
-                document.getElementById('plan-body').innerHTML = '<tr><td colspan="5">該年度無資料</td></tr>';
+                document.getElementById('table-header').innerHTML = '';
+                document.getElementById('plan-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--sub);">該年度無訓練資料</td></tr>';
+                document.getElementById('month-summary-box').style.display = 'none';
             }
         }
 
@@ -467,13 +461,17 @@
             let wSet = new Set();
             monthData.forEach(d => wSet.add(d.week));
             weeksInMonth = Array.from(wSet).sort();
+            
             if (weeksInMonth.length > 0) {
-                currentWeek = weeksInMonth[0];
+                // 預設跳到該月最新的一週
+                currentWeek = weeksInMonth[weeksInMonth.length - 1];
                 renderWeekNav();
                 renderTable();
             } else {
+                // 🚨 修正真凶二：無資料時不破壞版面，優雅顯示提示
                 document.getElementById('week-nav').innerHTML = '';
-                document.getElementById('plan-body').innerHTML = '<tr><td colspan="5">該月無資料</td></tr>';
+                document.getElementById('table-header').innerHTML = '';
+                document.getElementById('plan-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--sub);">該月尚無訓練資料</td></tr>';
             }
         }
 
@@ -503,6 +501,11 @@
                 <th style="width: 30%;">紀錄簡述 / 配速</th>
             `;
 
+            if (weekData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--sub);">本週尚無課表資料</td></tr>';
+                return;
+            }
+
             weekData.forEach((d) => {
                 const tr = document.createElement('tr');
                 let dotClass = 's-gray';
@@ -511,7 +514,7 @@
                 if(d.status === 'red') dotClass = 's-red';
 
                 let shortDate = d.date.substring(5); 
-                let planName = d.plan["訓練項目"] || d.plan["課表"] || d.plan["預計"] || "-";
+                let planName = d.plan["精確課表內容與跑錶設定參數"] || d.plan["訓練項目"] || d.plan["課表"] || d.plan["預計"] || "-";
                 
                 let multiContentHtml = '';
                 let multiDataHtml = '';
@@ -539,7 +542,7 @@
                         
                         let dataStr = `<div class="tag-data"><span class="data-label">里程:</span><span style="color:#FFD700">${actDist}</span>${warmupTag}<br><span class="data-label">配速:</span>${actPace}<br><span class="data-label">心率:</span>${actHR}<br><span class="data-label">步頻:</span><span style="color:var(--actual)">${actCadence}</span></div>`;
                         
-                        let actMemo = formatCellText(actualLog["備註"] || actualLog["體感"] || actualLog["項目"]);
+                        let actMemo = formatCellText(actualLog["專項戰術備忘錄"] || actualLog["備註"] || actualLog["體感"] || actualLog["項目"]);
 
                         if (index > 0) {
                             multiContentHtml += `<div class="multi-session-divider" style="border-top:1px dashed #444; margin:10px 0; padding-top:10px;"></div>`;
@@ -565,7 +568,6 @@
                 let expandIcon = hasDetails ? `<span class="expand-icon">▶</span>` : `<span class="expand-icon" style="opacity:0;">▶</span>`;
                 let detailsHTML = "";
                 
-                // 將所有 log 的詳細資訊合併顯示在展開區
                 if(hasDetails) {
                     let detailsList = [];
                     d.logs.forEach(actualLog => {
@@ -577,9 +579,12 @@
                     if(detailsList.length > 0) detailsHTML = `<div class="plan-details">${detailsList.join(' &nbsp;|&nbsp; ')}</div>`;
                 }
 
+                // 抓取建議戰靴
+                let shoeName = d.plan["建議配對跑鞋代碼"] || d.plan["鞋"] || "-";
+
                 tr.innerHTML = `
                     <td class="td-date"><span class="status-dot ${dotClass}"></span>${shortDate}</td>
-                    <td>${planName}</td>
+                    <td><div style="margin-bottom: 8px;">${planName}</div><div style="color:var(--sub); font-size:0.85rem;">💡 ${formatCellText(d.plan["專項戰術備忘錄"] || d.plan["備忘"])}</div><div class="tag-shoe">👟 ${formatCellText(shoeName)}</div></td>
                     <td><span style="color:#aaa;">${d.plannedDist || "-"}</span> ➜ <span style="${d.actualDist > 0 ? 'color:#fff; font-weight:bold;' : 'color:#555;'}">${d.actualDist || "-"}</span></td>
                     <td style="color:var(--sub);">${d.warmupDist > 0 ? '+'+d.warmupDist : '-'}</td>
                     <td>${expandIcon} ${multiMemoHtml} ${detailsHTML}</td>
@@ -615,8 +620,13 @@
             });
             
             raceYears = Array.from(ySet).sort();
+            
+            // 賽事牆也自動追蹤當前年份
+            let today = new Date();
+            let currentRealYear = String(today.getFullYear());
+            
             if(raceYears.length > 0) {
-                currentRaceYear = raceYears[0];
+                currentRaceYear = raceYears.includes(currentRealYear) ? currentRealYear : raceYears[raceYears.length - 1];
                 updateRaceView();
             } else {
                 document.getElementById('races-content').innerHTML = "<p style='color:var(--sub)'>找不到有效的賽事日期</p>";
@@ -681,7 +691,6 @@
             document.getElementById(id).innerHTML = html;
         }
 
-        // 處理相片牆
         function processGallery(data) {
             let container = document.getElementById('gallery-content');
             if(data.length === 0) { container.innerHTML = "<p style='color:var(--sub)'>請在 Excel 貼上檔名或連結。</p>"; return; }
