@@ -122,7 +122,6 @@
             <div class="card">
                 <h2>📅 預計課表 vs 真實訓練</h2>
                 
-                <div id="year-nav" class="sub-nav" style="margin-bottom: 10px;"></div>
                 <div id="month-nav" class="sub-nav" style="background: #151515; padding: 8px;"></div>
                 
                 <div style="display: flex; flex-wrap: wrap; gap: 15px; margin: 15px 0;">
@@ -214,19 +213,18 @@
         };
 
         const STRATEGY = {
-            "2026-06": "基礎建構期：擴建有氧大油箱，把月跑量穩穩推上 200km。固定執行右臀訓練，強化防傷剛性。",
-            "2026-07": "耐熱築牆期：提升高溫下的有氧抗壓能力，專注於心率控制與水分補給。",
-            "2026-08": "強度切換期：訓練身體清運乳酸的能力（T 跑），開始接觸半馬 1h30m 的 4'15\" 配速體感。",
-            "2026-09": "速度高峰期：持續強化速耐力，操場間歇與節奏跑雙管齊下。",
-            "2026-10": "賽前減量與測驗：準備月底華航半馬，將體能推向第一波巔峰。",
-            "2026-11": "賽事收割期：消除疲勞，迎接田中初馬大考！後半月以恢復為主。",
-            "2026-12": "海外跑旅與保溫：享受富士山馬拉松，維持基礎體能準備隔年渣打。",
-            "2027-01": "終極破 PB 月：將所有火力集中在渣打馬拉松，目標 Sub 310，劍指台北馬免抽門票！"
+            "6月": "基礎建構期：擴建有氧大油箱，把月跑量穩穩推上 200km。固定執行右臀訓練，強化防傷剛性。",
+            "7月": "耐熱築牆期：提升高溫下的有氧抗壓能力，專注於心率控制與水分補給。",
+            "8月": "強度切換期：訓練身體清運乳酸的能力（T 跑），開始接觸半馬 1h30m 的 4'15\" 配速體感。",
+            "9月": "速度高峰期：持續強化速耐力，操場間歇與節奏跑雙管齊下。",
+            "10月": "賽前減量與測驗：準備月底華航半馬，將體能推向第一波巔峰。",
+            "11月": "賽事收割期：消除疲勞，迎接田中初馬大考！後半月以恢復為主。",
+            "12月": "海外跑旅與保溫：享受富士山馬拉松，維持基礎體能準備隔年渣打。",
+            "1月": "終極破 PB 月：將所有火力集中在渣打馬拉松，目標 Sub 310，劍指台北馬免抽門票！"
         };
 
         let rawPlanData = [], rawLogData = [];
         let combinedData = [];
-        let years = [], currentYear = "";
         let monthsInYear = [], currentMonth = "";
         let weeksInMonth = [], currentWeek = "";
         
@@ -253,10 +251,6 @@
                 return url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
             }
             return url;
-        }
-
-        function findDateValue(row) {
-            return row["日期"] || row["Date"] || row["date"];
         }
 
         function formatDateString(val) {
@@ -313,7 +307,7 @@
 
         function processData() {
             combinedData = [];
-            let yearSet = new Set();
+            let mSet = new Set();
             const logDict = {};
             let warmupColName = null;
             
@@ -323,37 +317,36 @@
             }
 
             rawLogData.forEach(row => {
-                let dateStr = findDateValue(row);
-                if (dateStr) {
-                    const formattedDate = formatDateString(dateStr);
-                    if(formattedDate) {
-                         row._formattedDate = formattedDate;
-                         row._warmupDistance = 0;
-                         if(warmupColName && row[warmupColName]) {
-                             let val = parseFloat(row[warmupColName]);
-                             if(!isNaN(val)) row._warmupDistance = val;
-                         }
-                         if(!logDict[formattedDate]) logDict[formattedDate] = [];
-                         logDict[formattedDate].push(row);
+                let m = row["月份"] || row["月"] || "";
+                let w = row["週期週數"] || row["週次"] || row["Week"] || "";
+                let d = row["星期"] || row["Day"] || "";
+                
+                if (m && w && d) {
+                    let key = `${m}_${w}_${d}`;
+                    row._warmupDistance = 0;
+                    if(warmupColName && row[warmupColName]) {
+                        let val = parseFloat(row[warmupColName]);
+                        if(!isNaN(val)) row._warmupDistance = val;
                     }
+                    if(!logDict[key]) logDict[key] = [];
+                    logDict[key].push(row);
                 }
             });
 
             rawPlanData.forEach(pRow => {
-                let dateStr = findDateValue(pRow);
-                if (!dateStr) return;
-                let fDate = formatDateString(dateStr);
-                if (!fDate) return;
-
-                let year = fDate.substring(0, 4);
-                let rawMonth = fDate.substring(5, 7);
-                let displayMonth = rawMonth.startsWith("0") ? rawMonth.substring(1) + "月" : rawMonth + "月";
+                let m = pRow["月份"] || pRow["月"] || "";
+                let w = pRow["週期週數"] || pRow["週次"] || pRow["Week"] || "";
+                let d = pRow["星期"] || pRow["Day"] || "";
                 
-                yearSet.add(year);
-                let week = pRow["週次"] || pRow["週期週數"] || pRow["Week"] || "W?";
+                if (!m || !w || !d) return;
+
+                if (!m.includes("月")) m = m + "月";
+                mSet.add(m);
+
+                let key = `${m}_${w}_${d}`;
                 let plannedMileage = extractMileage(pRow);
                 
-                let actualLogs = logDict[fDate] || [];
+                let actualLogs = logDict[key] || [];
                 let actualMileage = 0;
                 let warmupMileage = 0;
                 actualLogs.forEach(l => {
@@ -369,55 +362,27 @@
                 }
 
                 combinedData.push({
-                    date: fDate, year: year, month: displayMonth, rawMonth: rawMonth, 
-                    week: week, plan: pRow, logs: actualLogs,
+                    month: m, week: w, day: d, plan: pRow, logs: actualLogs,
                     plannedDist: plannedMileage, actualDist: actualMileage,
                     warmupDist: warmupMileage, status: status
                 });
             });
 
-            years = Array.from(yearSet).sort();
-            
-            // 🚨 智能追蹤當前時間 
-            let today = new Date();
-            let currentRealYear = String(today.getFullYear());
-            let currentRealMonth = String(today.getMonth() + 1) + "月";
-            
-            if(years.length > 0) {
-                currentYear = years.includes(currentRealYear) ? currentRealYear : years[years.length - 1]; 
-                renderYearNav();
-                updateYearView(currentRealMonth); // 傳入真實月份進行比對
-            }
-        }
-
-        function renderYearNav() {
-            const nav = document.getElementById('year-nav');
-            nav.innerHTML = '<span class="filter-label">📅 選擇年份：</span>';
-            years.forEach(y => {
-                let btn = document.createElement('button');
-                btn.className = 'sub-btn ' + (y === currentYear ? 'active' : '');
-                btn.innerText = y + " 年";
-                btn.onclick = () => { currentYear = y; renderYearNav(); updateYearView(); };
-                nav.appendChild(btn);
-            });
-        }
-
-        function updateYearView(targetMonth = null) {
-            let mSet = new Set();
-            combinedData.filter(d => d.year === currentYear).forEach(d => mSet.add(d.month));
             monthsInYear = Array.from(mSet).sort((a, b) => parseInt(a) - parseInt(b));
             
-            if (monthsInYear.length > 0) {
-                // 如果有傳入真實月份且資料庫裡有，就自動跳轉；否則顯示資料庫裡最新的月份
-                currentMonth = (targetMonth && monthsInYear.includes(targetMonth)) ? targetMonth : monthsInYear[monthsInYear.length - 1];
+            // 🚨 智能追蹤當前月份 
+            let today = new Date();
+            let currentRealMonth = String(today.getMonth() + 1) + "月";
+            
+            if(monthsInYear.length > 0) {
+                currentMonth = monthsInYear.includes(currentRealMonth) ? currentRealMonth : monthsInYear[monthsInYear.length - 1]; 
                 renderMonthNav();
                 updateMonthView();
             } else {
                 document.getElementById('month-nav').innerHTML = '';
                 document.getElementById('week-nav').innerHTML = '';
                 document.getElementById('table-header').innerHTML = '';
-                document.getElementById('plan-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--sub);">該年度無訓練資料</td></tr>';
-                document.getElementById('month-summary-box').style.display = 'none';
+                document.getElementById('plan-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--sub);">找不到訓練資料，請確認 Excel 是否有「月份」、「週期週數」、「星期」欄位。</td></tr>';
             }
         }
 
@@ -434,13 +399,11 @@
         }
 
         function updateMonthView() {
-            const monthData = combinedData.filter(d => d.year === currentYear && d.month === currentMonth);
+            const monthData = combinedData.filter(d => d.month === currentMonth);
             const sBox = document.getElementById('strategy-box');
-            let rawM = monthData.length > 0 ? monthData[0].rawMonth : "01";
-            let strategyKey = currentYear + "-" + rawM;
             
-            if (STRATEGY[strategyKey]) {
-                document.getElementById('strategy-text').innerText = STRATEGY[strategyKey];
+            if (STRATEGY[currentMonth]) {
+                document.getElementById('strategy-text').innerText = STRATEGY[currentMonth];
                 sBox.style.display = 'block';
             } else {
                 sBox.style.display = 'none';
@@ -463,12 +426,10 @@
             weeksInMonth = Array.from(wSet).sort();
             
             if (weeksInMonth.length > 0) {
-                // 預設跳到該月最新的一週
                 currentWeek = weeksInMonth[weeksInMonth.length - 1];
                 renderWeekNav();
                 renderTable();
             } else {
-                // 🚨 修正真凶二：無資料時不破壞版面，優雅顯示提示
                 document.getElementById('week-nav').innerHTML = '';
                 document.getElementById('table-header').innerHTML = '';
                 document.getElementById('plan-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--sub);">該月尚無訓練資料</td></tr>';
@@ -481,7 +442,7 @@
             weeksInMonth.forEach(w => {
                 let btn = document.createElement('button');
                 btn.className = 'sub-btn ' + (w === currentWeek ? 'active' : '');
-                btn.innerText = "週次 " + w;
+                btn.innerText = w;
                 btn.onclick = () => { currentWeek = w; renderWeekNav(); renderTable(); };
                 nav.appendChild(btn);
             });
@@ -491,10 +452,10 @@
             const tbody = document.getElementById('plan-body');
             const thead = document.getElementById('table-header');
             tbody.innerHTML = '';
-            const weekData = combinedData.filter(d => d.year === currentYear && d.month === currentMonth && d.week === currentWeek);
+            const weekData = combinedData.filter(d => d.month === currentMonth && d.week === currentWeek);
             
             thead.innerHTML = `
-                <th style="width: 15%;">日期/狀態</th>
+                <th style="width: 15%;">星期/狀態</th>
                 <th style="width: 25%;">預計課表</th>
                 <th style="width: 15%;">主里程 (k)</th>
                 <th style="width: 15%;">熱緩 (k)</th>
@@ -513,7 +474,6 @@
                 if(d.status === 'yellow') dotClass = 's-yellow';
                 if(d.status === 'red') dotClass = 's-red';
 
-                let shortDate = d.date.substring(5); 
                 let planName = d.plan["精確課表內容與跑錶設定參數"] || d.plan["訓練項目"] || d.plan["課表"] || d.plan["預計"] || "-";
                 
                 let multiContentHtml = '';
@@ -524,7 +484,7 @@
                 if (d.logs.length > 0) {
                     hasDetails = true;
                     d.logs.forEach((actualLog, index) => {
-                        let actContent = `<span style="color:var(--actual); font-weight:bold;">${formatCellText(actualLog["訓練項目"] || actualLog["課表"] || "有紀錄")}</span>`;
+                        let actContent = `<span style="color:var(--actual); font-weight:bold;">${formatCellText(actualLog["實戰跑鞋"] || actualLog["訓練項目"] || actualLog["課表"] || "有紀錄")}</span>`;
                         
                         let actDist = extractMileage(actualLog) || '-'; 
                         let actPace = "-";
@@ -542,7 +502,7 @@
                         
                         let dataStr = `<div class="tag-data"><span class="data-label">里程:</span><span style="color:#FFD700">${actDist}</span>${warmupTag}<br><span class="data-label">配速:</span>${actPace}<br><span class="data-label">心率:</span>${actHR}<br><span class="data-label">步頻:</span><span style="color:var(--actual)">${actCadence}</span></div>`;
                         
-                        let actMemo = formatCellText(actualLog["專項戰術備忘錄"] || actualLog["備註"] || actualLog["體感"] || actualLog["項目"]);
+                        let actMemo = formatCellText(actualLog["備註欄"] || actualLog["備註"] || actualLog["體感"]);
 
                         if (index > 0) {
                             multiContentHtml += `<div class="multi-session-divider" style="border-top:1px dashed #444; margin:10px 0; padding-top:10px;"></div>`;
@@ -572,18 +532,17 @@
                     let detailsList = [];
                     d.logs.forEach(actualLog => {
                         for(let k in actualLog) {
-                            if(k.startsWith("_") || k === "日期" || k.includes("里程") || k.includes("距離") || k.includes("熱身")) continue;
+                            if(k.startsWith("_") || k === "日期" || k === "月份" || k.includes("週數") || k === "星期" || k.includes("里程") || k.includes("距離") || k.includes("熱身")) continue;
                             if(actualLog[k]) detailsList.push(`<b>${k}:</b> ${actualLog[k]}`);
                         }
                     });
                     if(detailsList.length > 0) detailsHTML = `<div class="plan-details">${detailsList.join(' &nbsp;|&nbsp; ')}</div>`;
                 }
 
-                // 抓取建議戰靴
                 let shoeName = d.plan["建議配對跑鞋代碼"] || d.plan["鞋"] || "-";
 
                 tr.innerHTML = `
-                    <td class="td-date"><span class="status-dot ${dotClass}"></span>${shortDate}</td>
+                    <td class="td-date"><span class="status-dot ${dotClass}"></span>${d.day}</td>
                     <td><div style="margin-bottom: 8px;">${planName}</div><div style="color:var(--sub); font-size:0.85rem;">💡 ${formatCellText(d.plan["專項戰術備忘錄"] || d.plan["備忘"])}</div><div class="tag-shoe">👟 ${formatCellText(shoeName)}</div></td>
                     <td><span style="color:#aaa;">${d.plannedDist || "-"}</span> ➜ <span style="${d.actualDist > 0 ? 'color:#fff; font-weight:bold;' : 'color:#555;'}">${d.actualDist || "-"}</span></td>
                     <td style="color:var(--sub);">${d.warmupDist > 0 ? '+'+d.warmupDist : '-'}</td>
@@ -621,7 +580,6 @@
             
             raceYears = Array.from(ySet).sort();
             
-            // 賽事牆也自動追蹤當前年份
             let today = new Date();
             let currentRealYear = String(today.getFullYear());
             
