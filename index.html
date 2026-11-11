@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lemon 的馬拉松訓練紀錄</title>
+    <title>Lemon 的馬拉松指揮艙</title>
     <style>
         :root {
             --bg: #121212; --panel: #1e1e1e; --text: #e0e0e0;
@@ -122,6 +122,7 @@
             <div class="card">
                 <h2>📅 預計課表 vs 真實訓練</h2>
                 
+                <div id="year-nav" class="sub-nav" style="margin-bottom: 10px;"></div>
                 <div id="month-nav" class="sub-nav" style="background: #151515; padding: 8px;"></div>
                 
                 <div style="display: flex; flex-wrap: wrap; gap: 15px; margin: 15px 0;">
@@ -213,18 +214,19 @@
         };
 
         const STRATEGY = {
-            "6月": "基礎建構期：擴建有氧大油箱，把月跑量穩穩推上 200km。固定執行右臀訓練，強化防傷剛性。",
-            "7月": "耐熱築牆期：提升高溫下的有氧抗壓能力，專注於心率控制與水分補給。",
-            "8月": "強度切換期：訓練身體清運乳酸的能力（T 跑），開始接觸半馬 1h30m 的 4'15\" 配速體感。",
-            "9月": "速度高峰期：持續強化速耐力，操場間歇與節奏跑雙管齊下。",
-            "10月": "賽前減量與測驗：準備月底華航半馬，將體能推向第一波巔峰。",
-            "11月": "賽事收割期：消除疲勞，迎接田中初馬大考！後半月以恢復為主。",
-            "12月": "海外跑旅與保溫：享受富士山馬拉松，維持基礎體能準備隔年渣打。",
-            "1月": "終極破 PB 月：將所有火力集中在渣打馬拉松，目標 Sub 310，劍指台北馬免抽門票！"
+            "2026-06": "基礎建構期：擴建有氧大油箱，把月跑量穩穩推上 200km。固定執行右臀訓練，強化防傷剛性。",
+            "2026-07": "耐熱築牆期：提升高溫下的有氧抗壓能力，專注於心率控制與水分補給。",
+            "2026-08": "強度切換期：訓練身體清運乳酸的能力（T 跑），開始接觸半馬 1h30m 的 4'15\" 配速體感。",
+            "2026-09": "速度高峰期：持續強化速耐力，操場間歇與節奏跑雙管齊下。",
+            "2026-10": "賽前減量與測驗：準備月底華航半馬，將體能推向第一波巔峰。",
+            "2026-11": "賽事收割期：消除疲勞，迎接田中初馬大考！後半月以恢復為主。",
+            "2026-12": "海外跑旅與保溫：享受富士山馬拉松，維持基礎體能準備隔年渣打。",
+            "2027-01": "終極破 PB 月：將所有火力集中在渣打馬拉松，目標 Sub 310，劍指台北馬免抽門票！"
         };
 
         let rawPlanData = [], rawLogData = [];
         let combinedData = [];
+        let years = [], currentYear = "";
         let monthsInYear = [], currentMonth = "";
         let weeksInMonth = [], currentWeek = "";
         
@@ -253,8 +255,16 @@
             return url;
         }
 
+        function findDateValue(row) {
+            return row["日期"] || row["Date"] || row["date"] || row["年份"];
+        }
+
         function formatDateString(val) {
             if (!val) return null;
+            if (typeof val === 'number') {
+                let d = new Date((val - (25567 + 2)) * 86400 * 1000);
+                return d.getFullYear() + "/" + String(d.getMonth()+1).padStart(2,'0') + "/" + String(d.getDate()).padStart(2,'0');
+            }
             if (typeof val === 'string') {
                 let parts = val.split(/[/-]/);
                 if(parts.length >= 2) {
@@ -301,13 +311,22 @@
         function fetchCSV(url) {
             return new Promise((resolve) => {
                 if(!url || !url.includes('http')) { resolve({data:[]}); return; }
-                Papa.parse(url, { download: true, header: true, skipEmptyLines: true, trimHeaders: true, complete: resolve });
+                // 這裡加入了 transformHeader 來強制清除所有的 BOM 和不可見字元
+                Papa.parse(url, { 
+                    download: true, 
+                    header: true, 
+                    skipEmptyLines: true,
+                    transformHeader: function(header) {
+                        return header.trim().replace(/^[\uFEFF\xA0]+|[\uFEFF\xA0]+$/g, '');
+                    },
+                    complete: resolve 
+                });
             });
         }
 
         function processData() {
             combinedData = [];
-            let mSet = new Set();
+            let yearSet = new Set();
             const logDict = {};
             let warmupColName = null;
             
@@ -317,12 +336,14 @@
             }
 
             rawLogData.forEach(row => {
+                let y = row["年份"] || (row["日期"] ? formatDateString(row["日期"]).substring(0,4) : "");
                 let m = row["月份"] || row["月"] || "";
                 let w = row["週期週數"] || row["週次"] || row["Week"] || "";
                 let d = row["星期"] || row["Day"] || "";
                 
-                if (m && w && d) {
-                    let key = `${m}_${w}_${d}`;
+                if (y && m && w && d) {
+                    if (!m.includes("月")) m = m + "月";
+                    let key = `${y}_${m}_${w}_${d}`;
                     row._warmupDistance = 0;
                     if(warmupColName && row[warmupColName]) {
                         let val = parseFloat(row[warmupColName]);
@@ -334,6 +355,7 @@
             });
 
             rawPlanData.forEach(pRow => {
+                let y = pRow["年份"] || (pRow["日期"] ? formatDateString(pRow["日期"]).substring(0,4) : "2026"); // 如果沒填預設 2026
                 let m = pRow["月份"] || pRow["月"] || "";
                 let w = pRow["週期週數"] || pRow["週次"] || pRow["Week"] || "";
                 let d = pRow["星期"] || pRow["Day"] || "";
@@ -341,9 +363,9 @@
                 if (!m || !w || !d) return;
 
                 if (!m.includes("月")) m = m + "月";
-                mSet.add(m);
+                yearSet.add(y);
 
-                let key = `${m}_${w}_${d}`;
+                let key = `${y}_${m}_${w}_${d}`;
                 let plannedMileage = extractMileage(pRow);
                 
                 let actualLogs = logDict[key] || [];
@@ -362,27 +384,58 @@
                 }
 
                 combinedData.push({
-                    month: m, week: w, day: d, plan: pRow, logs: actualLogs,
+                    year: y, month: m, rawMonth: m.replace("月", "").padStart(2, '0'), week: w, day: d, plan: pRow, logs: actualLogs,
                     plannedDist: plannedMileage, actualDist: actualMileage,
                     warmupDist: warmupMileage, status: status
                 });
             });
 
-            monthsInYear = Array.from(mSet).sort((a, b) => parseInt(a) - parseInt(b));
+            years = Array.from(yearSet).sort();
             
-            // 🚨 智能追蹤當前月份 
             let today = new Date();
+            let currentRealYear = String(today.getFullYear());
             let currentRealMonth = String(today.getMonth() + 1) + "月";
             
-            if(monthsInYear.length > 0) {
-                currentMonth = monthsInYear.includes(currentRealMonth) ? currentRealMonth : monthsInYear[monthsInYear.length - 1]; 
+            if(years.length > 0) {
+                currentYear = years.includes(currentRealYear) ? currentRealYear : years[years.length - 1]; 
+                renderYearNav();
+                updateYearView(currentRealMonth);
+            } else {
+                document.getElementById('year-nav').innerHTML = '';
+                document.getElementById('month-nav').innerHTML = '';
+                document.getElementById('week-nav').innerHTML = '';
+                document.getElementById('table-header').innerHTML = '';
+                document.getElementById('plan-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--sub);">找不到訓練資料，請確認 Excel 是否有欄位名稱設定錯誤。</td></tr>';
+            }
+        }
+
+        function renderYearNav() {
+            const nav = document.getElementById('year-nav');
+            nav.innerHTML = '<span class="filter-label">📅 選擇年份：</span>';
+            years.forEach(y => {
+                let btn = document.createElement('button');
+                btn.className = 'sub-btn ' + (y === currentYear ? 'active' : '');
+                btn.innerText = y + " 年";
+                btn.onclick = () => { currentYear = y; renderYearNav(); updateYearView(); };
+                nav.appendChild(btn);
+            });
+        }
+
+        function updateYearView(targetMonth = null) {
+            let mSet = new Set();
+            combinedData.filter(d => d.year === currentYear).forEach(d => mSet.add(d.month));
+            monthsInYear = Array.from(mSet).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            if (monthsInYear.length > 0) {
+                currentMonth = (targetMonth && monthsInYear.includes(targetMonth)) ? targetMonth : monthsInYear[monthsInYear.length - 1];
                 renderMonthNav();
                 updateMonthView();
             } else {
                 document.getElementById('month-nav').innerHTML = '';
                 document.getElementById('week-nav').innerHTML = '';
                 document.getElementById('table-header').innerHTML = '';
-                document.getElementById('plan-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--sub);">找不到訓練資料，請確認 Excel 是否有「月份」、「週期週數」、「星期」欄位。</td></tr>';
+                document.getElementById('plan-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--sub);">該年度無訓練資料</td></tr>';
+                document.getElementById('month-summary-box').style.display = 'none';
             }
         }
 
@@ -399,11 +452,13 @@
         }
 
         function updateMonthView() {
-            const monthData = combinedData.filter(d => d.month === currentMonth);
+            const monthData = combinedData.filter(d => d.year === currentYear && d.month === currentMonth);
             const sBox = document.getElementById('strategy-box');
+            let rawM = monthData.length > 0 ? monthData[0].rawMonth : "01";
+            let strategyKey = currentYear + "-" + rawM;
             
-            if (STRATEGY[currentMonth]) {
-                document.getElementById('strategy-text').innerText = STRATEGY[currentMonth];
+            if (STRATEGY[strategyKey]) {
+                document.getElementById('strategy-text').innerText = STRATEGY[strategyKey];
                 sBox.style.display = 'block';
             } else {
                 sBox.style.display = 'none';
@@ -452,7 +507,7 @@
             const tbody = document.getElementById('plan-body');
             const thead = document.getElementById('table-header');
             tbody.innerHTML = '';
-            const weekData = combinedData.filter(d => d.month === currentMonth && d.week === currentWeek);
+            const weekData = combinedData.filter(d => d.year === currentYear && d.month === currentMonth && d.week === currentWeek);
             
             thead.innerHTML = `
                 <th style="width: 15%;">星期/狀態</th>
@@ -552,7 +607,6 @@
             });
         }
 
-        // 處理賽事牆
         function processRaces(data) {
             if(!data || data.length === 0) return;
             raceData = data;
